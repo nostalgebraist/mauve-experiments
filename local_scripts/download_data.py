@@ -11,7 +11,7 @@ import requests
 from tqdm import tqdm
 
 DATA_URL = "https://openaipublic.azureedge.net/gpt-2/output-dataset/v1/"
-subdir = 'data'
+subdir = 'webtext'
 
 if __name__ == '__main__':
     if not os.path.exists(subdir):
