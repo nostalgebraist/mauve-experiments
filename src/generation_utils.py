@@ -395,6 +395,7 @@ def get_default_batch_size(model_name, device, beam_size=1):
         mem = torch.cuda.get_device_properties(device).total_memory
         bsz = int(mem / twelve_gigs * max(1, default_batch_size / beam_size))
         bsz = max(1, bsz)
+    print(f'using batch size {bsz}')
     return bsz
 
 def create_sample_fn(model, max_len,
