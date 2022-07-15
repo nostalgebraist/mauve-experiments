@@ -13,9 +13,9 @@
 
 
 # Initialize conda into the right environment + modules.
-source ~/.bashrc
-conda activate pyt17  # cuda 10.1
-export DISABLE_TQDM=True
+# source ~/.bashrc
+# conda activate pyt17  # cuda 10.1
+# export DISABLE_TQDM=True
 
 echo "Running [ ${0} ${@} ] on $(hostname), starting at $(date)"
 echo "Job id = ${SLURM_JOB_ID}, task id = ${SLURM_ARRAY_TASK_ID}"
@@ -24,6 +24,8 @@ echo "PWD = $(pwd)"
 set -exu
 
 # TODO: set dataset and model_name
+
+max_num_generations=$1
 
 model_size="large"
 
@@ -35,12 +37,13 @@ if [ ${model_name} == "gpt2-small" ]; then
 fi
 
 # Default args
-if [ ${dataset} == "webtext" ]; then
-    data_dir="./data" #TODO
-else
-    data_dir="UNKNOWN dataset ${dataset}"
-    exit 100
-fi
+data_dir="${dataset}"
+# if [ ${dataset} == "webtext" ]; then
+#     data_dir="./data" #TODO
+# else
+#     data_dir="UNKNOWN dataset ${dataset}"
+#     exit 100
+# fi
 
 
 for datasplit in "test" "valid"
@@ -51,6 +54,7 @@ do
         --datasplit ${datasplit} \
         --data_dir ${data_dir} \
         --model_name ${model_name} \
+        --max_num_generations ${max_num_generations} \
         --use_large_feats
 
 done
