@@ -188,7 +188,8 @@ def load_json_dataset(data_dir, dataset_name, split=None, max_num_data=np.inf):
     return texts
 
 def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=None, ds_name=None, split='valid'):
-    assert max_len <= 1024 and max_num_data >= 2000, f"max_len={max_len}, max_num_data={max_num_data} are insufficent"
+    if not (max_len <= 1024 and max_num_data >= 2000):
+        print(f"max_len={max_len}, max_num_data={max_num_data} are insufficent")
     t1 = time.time()
     if ds_name is None:
         ds_name = get_dataset_name_from_datapath(data_dir)
@@ -233,5 +234,3 @@ def decode_samples_from_lst(tokenizer, lst):
 #     hs2[1:n] = hs[0:n-1]
 #     hs2[0] = 0  # initial hidden state
 #     return hs2[None]  # (1, n, dim)
-
-
