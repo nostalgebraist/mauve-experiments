@@ -16,10 +16,10 @@
 
 
 # Initialize conda into the right environment + modules.
-source ~/.bashrc
-conda activate pyt17  # cuda 10.1
-#conda activate pyt14_tf1  # cuda 10.0
-export DISABLE_TQDM=True
+# source ~/.bashrc
+# conda activate pyt17  # cuda 10.1
+# conda activate pyt14_tf1  # cuda 10.0
+# export DISABLE_TQDM=True
 
 echo "Running [ ${0} ${@} ] on $(hostname), starting at $(date)"
 echo "Job id = ${SLURM_JOB_ID}, task id = ${SLURM_ARRAY_TASK_ID}"
@@ -38,13 +38,14 @@ if [ ${model_name} == "gpt2-small" ]; then
     model_name="gpt2"
 fi
 
-# Default args
-if [ ${dataset} == "webtext" ]; then
-    data_dir="./data" ###TODO
-else
-    data_dir="UNKNOWN dataset ${dataset}"
-    exit 100
-fi
+# # Default args
+data_dir="${dataset}"
+# if [ ${dataset} == "webtext" ]; then
+#     data_dir="./data" ###TODO
+# else
+#     data_dir="UNKNOWN dataset ${dataset}"
+#     exit 100
+# fi
 
 
 list_of_jobs=()
