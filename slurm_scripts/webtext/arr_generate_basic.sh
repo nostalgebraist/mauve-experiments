@@ -29,6 +29,7 @@ set -exu
 
 
 model_size=$1  # pass model size as argument
+max_num_generations=$2
 prompt_size=35
 
 dataset="webtext"
@@ -118,6 +119,7 @@ time python -u generate_basic.py ${args} \
     --data_dir ${data_dir} \
     --model_name ${model_name} \
     --prompt_size ${prompt_size} \
+    --max_num_generations ${max_num_generations} \
     --use_large_feats
 
 echo "Job completed at $(date)"
