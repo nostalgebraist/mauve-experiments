@@ -112,15 +112,15 @@ def make_metrics_parser():
 def get_save_filename_from_args(args):
     if args.generation_type == 'basic':
         folder = 'basic'
-        filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_seed{args.generate_seed}'
+        filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_L{args.max_len}_seed{args.generate_seed}'
         if args.breakruns:
-            filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_bT{args.breakruns_base_temperature}_bt{args.breakruns_tau}_seed{args.seed}'
+            filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_bT{args.breakruns_base_temperature}_bt{args.breakruns_tau}_L{args.max_len}_seed{args.seed}'
     elif args.generation_type == 'beam':
         folder = 'beam'
-        filename = f'{args.datasplit}_b{args.beam_size}_t{args.temp}_nr{args.no_repeat_ngram}_seed{args.generate_seed}'
+        filename = f'{args.datasplit}_b{args.beam_size}_t{args.temp}_nr{args.no_repeat_ngram}_L{args.max_len}_seed{args.generate_seed}'
     elif args.generation_type == 'entmax':
         folder = 'entmax'
-        filename = f'{args.datasplit}_entmax{args.entmax_alpha}_seed{args.generate_seed}'
+        filename = f'{args.datasplit}_entmax{args.entmax_alpha}_L{args.max_len}_seed{args.generate_seed}'
     else:
         raise ValueError('Unknown generation type', args.generation_type)
     print('folder, filename:', (folder, filename))
