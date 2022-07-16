@@ -21,13 +21,13 @@ dataset="webtext"
 #model_name="gpt2-large"
 #max_len=${1}
 
-# Default args
-if [ ${dataset} == "webtext" ]; then
-    data_dir="./data"  # TODO
-else
-    data_dir="UNKNOWN dataset ${dataset}"
-    exit 100
-fi
+# # Default args
+# if [ ${dataset} == "webtext" ]; then
+#     data_dir="./data"  # TODO
+# else
+#     data_dir="UNKNOWN dataset ${dataset}"
+#     exit 100
+# fi
 
 discretization="kmeans_l2"
 kmeans_num_clusters=500
