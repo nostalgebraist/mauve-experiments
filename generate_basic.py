@@ -92,14 +92,10 @@ if __name__ == '__main__':
         for l in lens:
             feats_prefix = f'L{l}'
             feats_out_fn = f'{folder_name}/feats{feats_prefix}_{name}.pt'
-            if os.path.isfile(feats_out_fn):
-                print(f'Feats {feats_out_fn} exisits. Skipping')
-                continue
-            else:
-                print(f'Featurizing l = {l}...')
-                samples_3 = [x[:, :l] for x in samples_2]
-                feats = src.model_utils.featurize_sequential(model, samples_3)
-                torch.save(feats, feats_out_fn)
+            print(f'Featurizing l = {l}...')
+            samples_3 = [x[:, :l] for x in samples_2]
+            feats = src.model_utils.featurize_sequential(model, samples_3)
+            torch.save(feats, feats_out_fn)
     else:  # use features from model
         feats = src.model_utils.featurize_sequential(model, samples_2)
         torch.save(feats, f'{folder_name}/feats_{name}.pt')
