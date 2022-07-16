@@ -32,7 +32,9 @@ def main():
         raise FileNotFoundError(f'Generations {save_directory}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt do not exist')
     p_feats = torch.load(f'{save_directory}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt')
     folder, filename = utils.get_save_filename_from_args(args)
-    filename += f"_mD{args.max_num_data}"
+
+    filename_aug = filename
+    filename_aug += f"_mD{args.max_num_data}"
 
     algo_name = mauve_metrics.get_discretization_algo_name(
         discretization_algo=args.discretization,
@@ -41,7 +43,7 @@ def main():
         drmm_n_comp_per_layer=args.drmm_n_component_per_layer,
         spv_num_epochs=args.spv_num_epochs, device=device, seed=args.seed+1
     )
-    savefilename = f'{save_directory}/metrics/{folder}/mauve_{feats_suffix}_{filename}_{algo_name}.p'
+    savefilename = f'{save_directory}/metrics/{folder}/mauve_{feats_suffix}_{filename_aug}_{algo_name}.p'
     if os.path.isfile(savefilename) and not args.force:
         print('Metrics already exist. Exiting')
         return
