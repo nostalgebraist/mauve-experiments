@@ -50,6 +50,9 @@ def main():
 
     q_feats = torch.load(f'{save_directory}/generations/{folder}/feats{feats_suffix}_{filename}.pt')
 
+    # p_feats = p_feats[:args.max_num_data]
+    q_feats = q_feats[:args.max_num_data]
+
     p_quant, q_quant, metrics = mauve_metrics.compute_mauve_metrics(
         p_feats, q_feats, discretization_algo=args.discretization,
         kmeans_num_clusters=args.kmeans_num_clusters, kmeans_explained_var=args.kmeans_explained_var,
