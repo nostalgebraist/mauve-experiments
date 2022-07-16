@@ -337,7 +337,8 @@ def _generate_no_beam_search(model, input_ids,
 
         if do_sample:
             # Temperature (higher temperature => more likely to sample low probability tokens)
-            scores = brlp(model_inputs['input_ids'], scores)
+            if brlp is not None:
+                scores = brlp(model_inputs['input_ids'], scores)
             if temperature != 1.0 and (brlp is None):
                 scores = scores / temperature
             # Top-p/top-k filtering
