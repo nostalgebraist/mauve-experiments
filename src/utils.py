@@ -78,6 +78,9 @@ def make_metrics_parser():
     gen_parser.add_argument('--no_repeat_ngram', type=int, default=0)
     # entmax
     gen_parser.add_argument('--entmax_alpha', type=float, default=1.1)
+    gen_parser.add_argument('--breakruns', action='store_true')
+    gen_parser.add_argument('--breakruns_base_temperature', type=float, default=1.0)
+    gen_parser.add_argument('--breakruns_tau', type=float, default=0.035)
 
     ##########################
     # PR Args
