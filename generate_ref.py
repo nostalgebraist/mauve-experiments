@@ -7,7 +7,6 @@ import src.metrics
 
 if __name__ == '__main__':
     parser = utils.make_basic_parser()
-    parser.add_argument()
     args = parser.parse_args()
     print(args)
     torch.manual_seed(args.seed)
