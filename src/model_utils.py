@@ -155,6 +155,3 @@ def featurize_sequential(model, ds_tokens):
     t2 = time.time()
     print(f'Featurize time: {round(t2-t1, 2)}')
     return torch.cat(feats)
-
-
-# deleteme
