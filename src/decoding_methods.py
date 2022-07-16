@@ -42,9 +42,9 @@ class BreakrunsLogitsProcessor(LogitsProcessor):
         self.breakruns_counter = was_top * (self.breakruns_counter + 1)
 
         if self.debug:
-            sampled_str = repr(self.tokenizer.decode(input_ids[:, -1].item()))
-            actual_top_str = repr(self.tokenizer.decode([self.last_logits.argmax(dim=1).item()]))
-            print(f"was_top?: {was_top} | sampled {sampled_str} actual_top {actual_top_str} | self.breakruns_counter: {self.breakruns_counter}")
+            sampled_str = repr(self.tokenizer.decode(input_ids[0, -1].item()))
+            actual_top_str = repr(self.tokenizer.decode([self.last_logits.argmax(dim=1)[0].item()]))
+            print(f"was_top?: {was_top[0]} | sampled {sampled_str} actual_top {actual_top_str} | self.breakruns_counter: {self.breakruns_counter}")
 
         eff_temperature = self.base_temperature + (self.breakruns_counter * self.tau)
         self._dprint("eff_temperature: {et}", fillers={"et": eff_temperature})
