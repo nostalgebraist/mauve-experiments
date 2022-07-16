@@ -40,7 +40,7 @@ def make_basic_parser():
     parser.add_argument('--batch_size', type=int, default=-1)
     parser.add_argument('--breakruns', action='store_true')
     parser.add_argument('--breakruns_base_temperature', type=float, default=1.0)
-    parser.add_argument('--breakruns_tau', type=int, default=0.035)
+    parser.add_argument('--breakruns_tau', type=float, default=0.035)
     return parser
 
 def make_metrics_parser():
