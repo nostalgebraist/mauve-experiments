@@ -147,7 +147,7 @@ def featurize_sequential(model, ds_tokens, batch_size):
     device = next(model.parameters()).device
     t1 = time.time()
     feats = []
-    b_valid_ds = list(batch_fn(ds_tokens, batch_size))
+    b_valid_ds = list(gen_utils.batch_fn(ds_tokens, batch_size))
     for b in tqdm(b_valid_ds):
         outs = model(input_ids=b, past_key_values=None,
              output_hidden_states=True, return_dict=True)
