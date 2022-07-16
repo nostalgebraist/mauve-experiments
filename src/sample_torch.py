@@ -2,26 +2,6 @@ import torch
 from transformers import LogitsProcessor, LogitsWarper
 
 
-class AvoidUnkCaptionLogitsProcessor(LogitsProcessor):
-    def __init__(self,
-                 device='cuda:0'
-                 ):
-        self.unk_prefix = torch.as_tensor([18604, 198]).to(device)  # ['===', '\n']
-        self.prefix_length = self.unk_prefix.shape[0]
-
-    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
-        seq_length = input_ids.shape[1]
-
-        if seq_length < self.prefix_length:
-            return scores
-
-        with torch.no_grad():
-            if (input_ids[0, -self.prefix_length:] == self.unk_prefix.to(input_ids.device)).all():
-                scores[:, 34680] = -10000.  # 'unknown'
-
-        return scores
-
-
 class BreakrunsLogitsProcessor(LogitsProcessor):
     def __init__(self,
                  base_temperature: float,
