@@ -2,7 +2,7 @@ import os
 import torch
 
 import src.model_utils
-from src import utils, generation_utils as gen_utils
+from src import utils
 import src.metrics
 
 if __name__ == '__main__':
@@ -47,8 +47,7 @@ if __name__ == '__main__':
             else:
                 print(f'Featurizing l = {l}...')
                 samples_3 = [x[:, :l] for x in ds_tokens]
-                batch_size = gen_utils.get_default_batch_size(args.model_name, device)
-                feats = src.model_utils.featurize_sequential(model, samples_3, batch_size)
+                feats = src.model_utils.featurize_sequential(model, samples_3)
                 torch.save(feats, feats_out_fn)
     else:  # use features from model
         model, tokenizer = utils.get_model_and_tokenizer(model_name=args.model_name, device=device)
@@ -56,3 +55,4 @@ if __name__ == '__main__':
                                                  args.max_len, args.max_num_generations, split=args.datasplit)
         feats = src.model_utils.featurize_sequential(model, ds_tokens)
         torch.save(feats, f'{folder_name}/feats_{name}.pt')
+
