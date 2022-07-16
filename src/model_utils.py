@@ -10,6 +10,7 @@ import torch
 from torch.nn.functional import softmax, log_softmax, relu
 
 from src.utils import tqdm
+import src.generation_utils as gen_utils
 
 
 @torch.no_grad()
@@ -142,18 +143,16 @@ def get_log_probs_of_ds(model, ds_tokens):
 
 
 @torch.no_grad()
-def featurize_sequential(model, ds_tokens):
+def featurize_sequential(model, ds_tokens, batch_size):
     device = next(model.parameters()).device
     t1 = time.time()
     feats = []
-    for sen in tqdm(ds_tokens):
-        sen = sen.to(device)
-        outs = model(input_ids=sen, past_key_values=None,
+    b_valid_ds = list(batch_fn(ds_tokens, batch_size))
+    for b in tqdm(b_valid_ds):
+        outs = model(input_ids=b, past_key_values=None,
              output_hidden_states=True, return_dict=True)
         h = outs.hidden_states[-1]  # (batch_size, seq_len, dim)
         feats.append(h[:, -1, :].cpu())
     t2 = time.time()
     print(f'Featurize time: {round(t2-t1, 2)}')
     return torch.cat(feats)
-
-
