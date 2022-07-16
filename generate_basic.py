@@ -88,7 +88,8 @@ if __name__ == '__main__':
     if args.use_large_feats:
         del model
         model, _ = utils.get_model_and_tokenizer(model_name=args.featurize_model_name, device=device)
-        for l in {128, 256, 512, args.max_len}:
+        lens = {l for l in [128, 256, 512, args.max_len] if l <= args.max_len}
+        for l in lens:
             feats_prefix = f'L{l}'
             feats_out_fn = f'{folder_name}/feats{feats_prefix}_{name}.pt'
             if os.path.isfile(feats_out_fn):

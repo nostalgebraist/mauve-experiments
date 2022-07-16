@@ -7,6 +7,7 @@ import src.metrics
 
 if __name__ == '__main__':
     parser = utils.make_basic_parser()
+    parser.add_argument()
     args = parser.parse_args()
     print(args)
     torch.manual_seed(args.seed)
@@ -38,7 +39,8 @@ if __name__ == '__main__':
         model, tokenizer = utils.get_model_and_tokenizer(model_name=args.featurize_model_name, device=device)
         ds_tokens = utils.load_and_tokenize_data(tokenizer, args.data_dir, args.max_len, args.max_num_generations,
                                                  ds_name=args.ds_name, split=args.datasplit)
-        for l in {128, 256, 512, args.max_len}:
+        lens = {l for l in [128, 256, 512, args.max_len] if l <= args.max_len}
+        for l in lens:
             feats_prefix = f'L{l}'
             feats_out_fn = f'{folder_name}/feats{feats_prefix}_{name}.pt'
             if os.path.isfile(feats_out_fn):
@@ -55,4 +57,3 @@ if __name__ == '__main__':
                                                  args.max_len, args.max_num_generations, split=args.datasplit)
         feats = src.model_utils.featurize_sequential(model, ds_tokens)
         torch.save(feats, f'{folder_name}/feats_{name}.pt')
-
