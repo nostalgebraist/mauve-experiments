@@ -52,6 +52,7 @@ def make_metrics_parser():
     parser.add_argument('--max_len', type=int, default=1024)
     parser.add_argument('--ds_name', type=str)
     parser.add_argument('--max_num_data', type=int, default=5000)
+    parser.add_argument('--max_num_data_same', action='store_true')
     parser.add_argument('--model_name', type=str, default='gpt2')
     parser.add_argument('--data_dir', type=str, default='./data')
     parser.add_argument('--seed', type=int, default=1234)

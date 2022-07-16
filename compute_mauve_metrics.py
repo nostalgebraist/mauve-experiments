@@ -35,6 +35,8 @@ def main():
 
     filename_aug = filename
     filename_aug += f"_mD{args.max_num_data}"
+    if args.max_num_data_same and args.max_num_data < len(p_feats):
+        filename_aug += "_mDsame"
 
     algo_name = mauve_metrics.get_discretization_algo_name(
         discretization_algo=args.discretization,
@@ -53,7 +55,8 @@ def main():
 
     q_feats = torch.load(f'{save_directory}/generations/{folder}/feats{feats_suffix}_{filename}.pt')
 
-    # p_feats = p_feats[:args.max_num_data]
+    if args.max_num_data_same:
+        p_feats = p_feats[:args.max_num_data]
     q_feats = q_feats[:args.max_num_data]
 
     p_quant, q_quant, metrics = mauve_metrics.compute_mauve_metrics(
