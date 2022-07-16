@@ -149,7 +149,8 @@ def featurize_sequential(model, ds_tokens, batch_size):
     feats = []
     b_valid_ds = list(gen_utils.batch_fn(ds_tokens, batch_size))
     for b in tqdm(b_valid_ds):
-        outs = model(input_ids=b, past_key_values=None,
+        prompt = torch.cat(b)
+        outs = model(input_ids=prompt, past_key_values=None,
              output_hidden_states=True, return_dict=True)
         h = outs.hidden_states[-1]  # (batch_size, seq_len, dim)
         feats.append(h[:, -1, :].cpu())
