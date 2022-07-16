@@ -12,6 +12,7 @@ from transformers.utils import logging
 
 import src.utils as utils
 from src.transformers_utils import postprocess_next_token_scores
+from src.decoding_methods import BreakrunsLogitsProcessor
 
 
 logger = logging.get_logger(__name__)
@@ -41,6 +42,9 @@ def generate_text_from_recalibrated_model(
         attention_mask: Optional[torch.LongTensor] = None,
         decoder_start_token_id: Optional[int] = None,
         use_cache: Optional[bool] = None,
+        breakruns=False,
+        breakruns_tau=0.035,
+        breakruns_base_temperature=1.0,
         **model_kwargs) -> torch.LongTensor:
     r"""
     Generates sequences for models with a language modeling head. The method currently supports greedy decoding,
@@ -63,6 +67,10 @@ def generate_text_from_recalibrated_model(
             "You tried to generate sequences with a model that does not have a LM Head."
             "Please use another model class (e.g. `OpenAIGPTLMHeadModel`, `XLNetLMHeadModel`, `GPT2LMHeadModel`, `CTRLLMHeadModel`, `T5WithLMHeadModel`, `TransfoXLLMHeadModel`, `XLMWithLMHeadModel`, `BartForConditionalGeneration` )"
         )
+
+    brlp = None
+    if breakruns:
+        brlp = BreakrunsLogitsProcessor(base_temperature=breakruns_base_temperature, tau=breakruns_tau, debug=True)
 
     max_length = max_length if max_length is not None else model.config.max_length
     min_length = min_length if min_length is not None else model.config.min_length
@@ -273,7 +281,8 @@ def generate_text_from_recalibrated_model(
                                           no_repeat_ngram_size=no_repeat_ngram_size, bad_words_ids=bad_words_ids,
                                           pad_token_id=pad_token_id, eos_token_id=eos_token_id,
                                           batch_size=effective_batch_size, attention_mask=attention_mask,
-                                          use_cache=use_cache, model_kwargs=model_kwargs)
+                                          use_cache=use_cache, model_kwargs=model_kwargs,
+                                          brlp=brlp)
 
     return output
 
@@ -282,7 +291,8 @@ def _generate_no_beam_search(model, input_ids,
                              cur_len, max_length, min_length, do_sample,
                              temperature, top_k, top_p,
                              repetition_penalty, no_repeat_ngram_size, bad_words_ids,
-                             pad_token_id, eos_token_id, batch_size, attention_mask, use_cache, model_kwargs):
+                             pad_token_id, eos_token_id, batch_size, attention_mask, use_cache, model_kwargs,
+                             brlp=None):
     """Generate sequences for each example without beam search (num_beams == 1).
     All returned sequence are generated independently.
     """
@@ -323,7 +333,8 @@ def _generate_no_beam_search(model, input_ids,
 
         if do_sample:
             # Temperature (higher temperature => more likely to sample low probability tokens)
-            if temperature != 1.0:
+            scores = brlp(model_inputs['input_ids'], scores)
+            if temperature != 1.0 and (brlp is None):
                 scores = scores / temperature
             # Top-p/top-k filtering
             next_token_logscores = src.model_utils.my_top_k_top_p_filtering(
@@ -400,11 +411,17 @@ def get_default_batch_size(model_name, device, beam_size=1):
 
 def create_sample_fn(model, max_len,
                      top_p=1.0, top_k=0, temperature=1.0,
+                     breakruns=False,
+                     breakruns_base_temperature=1.0,
+                     breakruns_tau=0.035,
                      return_predicted_p=False):
     # recalib_fn is applied after top-p/top-k/temp modifications
     fn = lambda prompt: generate_text_from_recalibrated_model(
         model, input_ids=prompt,
-        max_length=max_len, do_sample=True, temperature=temperature, top_k=top_k, top_p=top_p,)
+        max_length=max_len, do_sample=True, temperature=temperature, top_k=top_k, top_p=top_p,
+        breakruns=breakruns,
+        breakruns_base_temperature=breakruns_base_temperature,
+        breakruns_tau=breakruns_tau)
     return fn
 
 def remove_eos_from_samples(samples, eos_token_id):

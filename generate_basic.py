@@ -52,7 +52,10 @@ if __name__ == '__main__':
         n_lst = [1, 2, 3, 4, 5, 6]
 
         sample_fn = gen_utils.create_sample_fn(model, args.max_len,
-            top_p=args.top_p, top_k=args.top_k, temperature=args.temp
+            top_p=args.top_p, top_k=args.top_k, temperature=args.temp,
+            breakruns=args.breakruns,
+            breakruns_base_temperature=args.breakruns_base_temperature,
+            breakruns_tau=args.breakruns_tau,
         )
         t1 = time.time()
         samples, is_completed = gen_utils.get_samples_from_sample_fn(
