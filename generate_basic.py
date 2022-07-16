@@ -46,7 +46,9 @@ if __name__ == '__main__':
             samples, is_completed, unique_ngram_frac, ppl = pkl.load(f)[:4]
         samples_2 = [torch.LongTensor(x).view(1, -1).to(device) for x in samples]
     else:
-        batch_size = gen_utils.get_default_batch_size(args.model_name, device)
+        batch_size = args.batch_size
+        if batch_size < 1:
+            batch_size = gen_utils.get_default_batch_size(args.model_name, device)
         n_lst = [1, 2, 3, 4, 5, 6]
 
         sample_fn = gen_utils.create_sample_fn(model, args.max_len,
@@ -100,4 +102,3 @@ if __name__ == '__main__':
     else:  # use features from model
         feats = src.model_utils.featurize_sequential(model, samples_2)
         torch.save(feats, f'{folder_name}/feats_{name}.pt')
-

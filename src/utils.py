@@ -37,6 +37,7 @@ def make_basic_parser():
     parser.add_argument('--beam_size', type=int, default=4)
     parser.add_argument('--no_repeat_ngram', type=int, default=0)
     parser.add_argument('--entmax_alpha', type=float, default=1.1)
+    parser.add_argument('--batch_size', type=int, default=-1)
     return parser
 
 def make_metrics_parser():
