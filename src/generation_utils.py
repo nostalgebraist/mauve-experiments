@@ -72,7 +72,7 @@ def generate_text_from_recalibrated_model(
     brlp = None
     if breakruns:
         brlp = BreakrunsLogitsProcessor(
-            base_temperature=breakruns_base_temperature, tau=breakruns_tau, debug=True,
+            base_temperature=breakruns_base_temperature, tau=breakruns_tau, debug=False,
             tokenizer=tokenizer,
         )
 
