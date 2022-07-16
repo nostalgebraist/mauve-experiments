@@ -45,6 +45,7 @@ def generate_text_from_recalibrated_model(
         breakruns=False,
         breakruns_tau=0.035,
         breakruns_base_temperature=1.0,
+        tokenizer=None,
         **model_kwargs) -> torch.LongTensor:
     r"""
     Generates sequences for models with a language modeling head. The method currently supports greedy decoding,
@@ -70,7 +71,10 @@ def generate_text_from_recalibrated_model(
 
     brlp = None
     if breakruns:
-        brlp = BreakrunsLogitsProcessor(base_temperature=breakruns_base_temperature, tau=breakruns_tau, debug=True)
+        brlp = BreakrunsLogitsProcessor(
+            base_temperature=breakruns_base_temperature, tau=breakruns_tau, debug=True,
+            tokenizer=tokenizer,
+        )
 
     max_length = max_length if max_length is not None else model.config.max_length
     min_length = min_length if min_length is not None else model.config.min_length
@@ -414,14 +418,16 @@ def create_sample_fn(model, max_len,
                      breakruns=False,
                      breakruns_base_temperature=1.0,
                      breakruns_tau=0.035,
-                     return_predicted_p=False):
+                     return_predicted_p=False,
+                     tokenizer=None):
     # recalib_fn is applied after top-p/top-k/temp modifications
     fn = lambda prompt: generate_text_from_recalibrated_model(
         model, input_ids=prompt,
         max_length=max_len, do_sample=True, temperature=temperature, top_k=top_k, top_p=top_p,
         breakruns=breakruns,
         breakruns_base_temperature=breakruns_base_temperature,
-        breakruns_tau=breakruns_tau)
+        breakruns_tau=breakruns_tau,
+        tokenizer=tokenizer)
     return fn
 
 def remove_eos_from_samples(samples, eos_token_id):

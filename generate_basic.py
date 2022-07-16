@@ -58,6 +58,7 @@ if __name__ == '__main__':
             breakruns=args.breakruns,
             breakruns_base_temperature=args.breakruns_base_temperature,
             breakruns_tau=args.breakruns_tau,
+            tokenizer=tokenizer,
         )
         t1 = time.time()
         samples, is_completed = gen_utils.get_samples_from_sample_fn(
