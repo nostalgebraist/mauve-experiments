@@ -29,6 +29,7 @@ dataset="webtext"
 #     exit 100
 # fi
 
+data_dir="${dataset}"
 discretization="kmeans_l2"
 kmeans_num_clusters=500
 
