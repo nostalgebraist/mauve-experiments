@@ -159,7 +159,10 @@ def no_init(loading_code, **kwargs):
         original[mod] = mod.reset_parameters
         mod.reset_parameters = dummy
 
-    modules_hf = [transformers.models.gpt2.modeling_gpt2.GPT2Model]
+    modules_hf = [
+        transformers.models.gpt2.modeling_gpt2.GPT2Model,
+        transformers.models.gpt2.modeling_gpt2.GPT2LMHeadModel
+    ]
     for mod in modules_hf:
         original[mod] = mod.init_weights
         mod.init_weights = dummy
