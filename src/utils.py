@@ -206,10 +206,12 @@ def load_json_dataset(data_dir, dataset_name, split=None, max_num_data=np.inf):
     return texts
 
 def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=None, ds_name=None, split='valid'):
+    if ds_name is None:
+        ds_name = get_dataset_name_from_datapath(data_dir)
     if split is None:
-        path = os.path.join(data_dir, f'{dataset_name}_tokenized.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_tokenized.pkl')
     else:
-        path = os.path.join(data_dir, f'{dataset_name}_tokenized.{split}.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_tokenized.{split}.pkl')
 
     if os.path.exists(path):
         with open(path, 'rb') as f:
@@ -219,8 +221,6 @@ def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=N
     if not (max_len <= 1024 and max_num_data >= 2000):
         print(f"max_len={max_len}, max_num_data={max_num_data} are insufficent")
     t1 = time.time()
-    if ds_name is None:
-        ds_name = get_dataset_name_from_datapath(data_dir)
     texts = load_json_dataset(data_dir, ds_name, split=split, max_num_data=max_num_data)
     t2 = time.time()
     print(f'dataset load time: {round(t2-t1, 2)}')
