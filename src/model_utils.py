@@ -170,7 +170,7 @@ def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp
             lens = [min(max_len, sen.shape[1]) for sen in b]
             prompt = torch.cat(
                 [
-                    torch.cat([sen[:, :max_len], pad_t.expand(max_len - l)], dim=1)
+                    torch.cat([sen[:, :max_len], pad_t.expand(1, max_len - l)], dim=1)
                     for sen, l in zip(b, lens)
                 ]
             )
