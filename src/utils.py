@@ -64,6 +64,7 @@ def make_metrics_parser():
     parser.add_argument('--use_bert_feats', action='store_true', help='Use feats from Roberta-large if true')
     parser.add_argument('--subsample_frac', type=float, default=1.0)
     parser.add_argument('--subsample_seed', type=int)
+    parser.add_argument('--custom_file_identifier', type=str, default='')
 
     ##########################
     # Generation Types Args
@@ -127,7 +128,7 @@ def get_save_filename_from_args(args):
 
     if args.custom_file_identifier != '':
         filename += "_" + args.custom_file_identifier
-    
+
     print('folder, filename:', (folder, filename))
     return folder, filename
 
