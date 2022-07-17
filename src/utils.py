@@ -242,9 +242,9 @@ def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=N
     if ds_name is None:
         ds_name = get_dataset_name_from_datapath(data_dir)
     if split is None:
-        path = os.path.join(data_dir, f'{ds_name}_tokenized.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_tokenized.pkl')
     else:
-        path = os.path.join(data_dir, f'{ds_name}_tokenized.{split}.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_tokenized.{split}.pkl')
 
     if os.path.exists(path):
         with open(path, 'rb') as f:
