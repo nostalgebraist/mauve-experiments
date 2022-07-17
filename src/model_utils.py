@@ -184,6 +184,6 @@ def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp
             feats.append(b_feats)
     t2 = time.time()
     print(f'Featurize time: {round(t2-t1, 2)}')
-    feats = torch.cat(feats)
+    feats = torch.cat(feats)[:, 0, :]
     print(feats.shape)
     return feats
