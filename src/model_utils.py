@@ -180,7 +180,7 @@ def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp
             h = outs.hidden_states[-1]  # (batch_size, seq_len, dim)
 
             lens = torch.LongTensor(lens).to(device)[:, None, None]
-            b_feats = torch.take_along_dim(h.cpu(), lens.cpu(), 1)
+            b_feats = torch.take_along_dim(h, lens - 1, 1).cpu()
             feats.append(b_feats)
     t2 = time.time()
     print(f'Featurize time: {round(t2-t1, 2)}')
