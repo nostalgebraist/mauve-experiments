@@ -123,7 +123,7 @@ def get_save_filename_from_args(args):
         breakruns_seg = ""
         if args.breakruns:
             breakruns_seg = f"bT{args.breakruns_base_temperature}_bt{args.breakruns_tau}_"
-        filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_{breakruns_seg}L{args.max_len}_seed{seed}_mG{args.max_num_generations}'
+        filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_{breakruns_seg}L{args.max_len}_seed{seed}_mG{max_num_generations}'
     else:
         raise ValueError('Unknown generation type', args.generation_type)
 
