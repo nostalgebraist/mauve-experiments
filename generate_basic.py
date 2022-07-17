@@ -20,9 +20,13 @@ if __name__ == '__main__':
 
     # check if have to run
     save_directory = f'./outputs/{utils.get_dataset_name_from_datapath(args.data_dir)}_{utils.get_model_basename(args.model_name)}'
-    name = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_L{args.max_len}_seed{args.seed}'
-    if args.breakruns:
-        name = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_bT{args.breakruns_base_temperature}_bt{args.breakruns_tau}_L{args.max_len}_seed{args.seed}'
+
+    _, name = utils.get_save_filename_from_args(args)
+
+    # name = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_L{args.max_len}_seed{args.seed}'
+    # if args.breakruns:
+    #     name = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_bT{args.breakruns_base_temperature}_bt{args.breakruns_tau}_L{args.max_len}_seed{args.seed}'
+
     folder_name = f'{save_directory}/generations/basic'
     if os.path.isfile(f'{folder_name}/feats_{name}.pt'):
         print(f'File: {folder_name}/feats_{name}.pt already exists. Exiting')
