@@ -158,15 +158,15 @@ def featurize_sequential(model, ds_tokens):
     return torch.cat(feats)
 
 @torch.no_grad()
-def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp):
+def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp, max_len):
     device = next(model.parameters()).device
     t1 = time.time()
     feats = []
     b_valid_ds = list(gen_utils.batch_fn(ds_tokens, batch_size))
     with torch.cuda.amp.autocast(amp):
         for b in tqdm(b_valid_ds):
-            lens = [min(prompt_size, sen.shape[1]) for sen in b]
-            prompt = torch.cat([sen[:, :prompt_size] + (prompt_size - l) * [pad_token_id] for sen, l in zip(b, lens)])
+            lens = [min(max_len, sen.shape[1]) for sen in b]
+            prompt = torch.cat([sen[:, :max_len] + (max_len - l) * [pad_token_id] for sen, l in zip(b, lens)])
 
             prompt = prompt.to(device)
             outs = model(input_ids=prompt, past_key_values=None,
