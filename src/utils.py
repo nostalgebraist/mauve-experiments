@@ -117,6 +117,7 @@ def make_metrics_parser():
 def get_save_filename_from_args(args):
     seed = args.generate_seed if hasattr(args, 'generate_seed') else args.seed
     generation_type = getattr(args, 'generation_type', 'basic')
+    max_num_generations = args.max_num_generations if hasattr(args, 'max_num_generations') else args.max_num_data
     if generation_type == 'basic':
         folder = 'basic'
         breakruns_seg = ""
