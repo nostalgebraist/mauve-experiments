@@ -7,6 +7,7 @@ from tqdm.auto import tqdm as tqdm_original
 import torch
 import pickle as pkl
 
+import transformers
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from transformers import RobertaModel, RobertaTokenizer
 
@@ -158,9 +159,17 @@ def no_init(loading_code, **kwargs):
         original[mod] = mod.reset_parameters
         mod.reset_parameters = dummy
 
+    modules_hf = [transformers.models.gpt2.modeling_gpt2.GPT2Model]
+    for mod in modules_hf:
+        original[mod] = mod.init_weights
+        mod.init_weights = dummy
+
     result = loading_code(**kwargs)
     for mod in modules:
         mod.reset_parameters = original[mod]
+
+    for mod in modules_hf:
+        mod.init_weights = original[mod]
 
     return result
 
