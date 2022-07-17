@@ -41,6 +41,9 @@ def make_basic_parser():
     parser.add_argument('--breakruns', action='store_true')
     parser.add_argument('--breakruns_base_temperature', type=float, default=1.0)
     parser.add_argument('--breakruns_tau', type=float, default=0.035)
+    parser.add_argument('--amp', action='store_true')
+    parser.add_argument('--fp16', action='store_true')
+    parser.add_argument('--custom_file_identifier', type=str, default='')
     return parser
 
 def make_metrics_parser():
@@ -121,6 +124,10 @@ def get_save_filename_from_args(args):
         filename = f'{args.datasplit}_p{args.top_p}_k{args.top_k}_t{args.temp}_{breakruns_seg}L{args.max_len}_seed{seed}_mG{args.max_num_generations}'
     else:
         raise ValueError('Unknown generation type', args.generation_type)
+
+    if args.custom_file_identifier != '':
+        filename += "_" + args.custom_file_identifier
+    
     print('folder, filename:', (folder, filename))
     return folder, filename
 

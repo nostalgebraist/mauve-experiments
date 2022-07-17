@@ -57,6 +57,9 @@ if __name__ == '__main__':
             batch_size = gen_utils.get_default_batch_size(args.model_name, device)
         n_lst = [1, 2, 3, 4, 5, 6]
 
+        if args.fp16:
+            model.half()
+
         sample_fn = gen_utils.create_sample_fn(model, args.max_len,
             top_p=args.top_p, top_k=args.top_k, temperature=args.temp,
             breakruns=args.breakruns,
@@ -67,7 +70,8 @@ if __name__ == '__main__':
         t1 = time.time()
         samples, is_completed = gen_utils.get_samples_from_sample_fn(
             sample_fn, ds_tokens, tokenizer.eos_token_id,
-            prompt_size=args.prompt_size, batch_size=batch_size
+            prompt_size=args.prompt_size, batch_size=batch_size,
+            amp=args.amp
         )
         t2 = time.time()
         print('sampling time:', round(t2-t1, 2))

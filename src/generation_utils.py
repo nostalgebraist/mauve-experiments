@@ -440,13 +440,14 @@ def remove_eos_from_samples(samples, eos_token_id):
     return new_samples, is_completed
 
 @torch.no_grad()
-def get_samples_from_sample_fn(sampl_fn, ds_tokens, eos_token_id, prompt_size=10, batch_size=20):
+def get_samples_from_sample_fn(sampl_fn, ds_tokens, eos_token_id, prompt_size=10, batch_size=20, amp=False):
     outs = []
     b_valid_ds = list(batch_fn(ds_tokens, batch_size))
-    for b in tqdm(b_valid_ds):
-        prompt = torch.cat([sen[:, :prompt_size] for sen in b])
-        sample = sampl_fn(prompt)
-        outs.extend(sample.cpu().numpy().tolist())
+    with torch.cuda.amp.autocast(amp):
+        for b in tqdm(b_valid_ds):
+            prompt = torch.cat([sen[:, :prompt_size] for sen in b])
+            sample = sampl_fn(prompt)
+            outs.extend(sample.cpu().numpy().tolist())
     # remove eos tokens which are added for padding
     outs, is_completed = remove_eos_from_samples(outs, eos_token_id)
     return outs, is_completed
