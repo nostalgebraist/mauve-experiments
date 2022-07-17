@@ -174,6 +174,7 @@ def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp
                     for sen, l in zip(b, lens)
                 ]
             )
+            prompt = prompt.to(device)
 
             outs = model(input_ids=prompt, past_key_values=None,
                  output_hidden_states=True, return_dict=True)
