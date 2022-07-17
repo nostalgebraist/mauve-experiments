@@ -45,7 +45,14 @@ if __name__ == '__main__':
             feats_out_fn = f'{folder_name}/feats{feats_prefix}_{name}.pt'
             print(f'Featurizing l = {l}...')
             samples_3 = [x[:, :l] for x in ds_tokens]
-            feats = src.model_utils.featurize_sequential(model, samples_3)
+            feats = src.model_utils.featurize_sequential_batched(
+                model,
+                samples_3,
+                batch_size=args.featurize_batch_size,
+                pad_token_id=tokenizer.eos_token_id,
+                amp=args.amp,
+                max_len=l,
+            )
             torch.save(feats, feats_out_fn)
     else:  # use features from model
         model, tokenizer = utils.get_model_and_tokenizer(model_name=args.model_name, device=device)
