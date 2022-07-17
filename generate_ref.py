@@ -15,7 +15,7 @@ if __name__ == '__main__':
         raise ValueError('Use large feats!')
 
     # check if have to run
-    save_directory = f'./outputs/{utils.get_dataset_name_from_datapath(args.data_dir)}_{utils.get_model_basename(args.model_name)}'
+    save_directory = f'./outputs/{utils.get_dataset_name_from_datapath(args.data_dir)}'
     if args.ds_name is None:
         name = args.datasplit
     else:

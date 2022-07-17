@@ -13,6 +13,7 @@ def main():
     torch.manual_seed(args.seed)
     device = utils.get_device_from_arg(args.device)
     save_directory = f'./outputs/{utils.get_dataset_name_from_datapath(args.data_dir)}_{utils.get_model_basename(args.model_name)}'
+    save_directory_ref = f'./outputs/{utils.get_dataset_name_from_datapath(args.data_dir)}'
 
     if args.use_large_feats:
         feats_suffix = f'L{args.max_len}'
@@ -28,9 +29,9 @@ def main():
     else:
         print('---------------Using features from model used for generations!!!!')
 
-    if not os.path.isfile(f'{save_directory}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt'):
-        raise FileNotFoundError(f'Generations {save_directory}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt do not exist')
-    p_feats = torch.load(f'{save_directory}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt')
+    if not os.path.isfile(f'{save_directory_ref}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt'):
+        raise FileNotFoundError(f'Generations {save_directory_ref}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt do not exist')
+    p_feats = torch.load(f'{save_directory_ref}/generations/ref/feats{feats_suffix}_{args.datasplit}.pt')
     folder, filename = utils.get_save_filename_from_args(args)
 
     filename_aug = filename

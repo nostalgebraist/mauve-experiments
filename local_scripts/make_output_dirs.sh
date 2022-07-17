@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-for outer_dir in "outputs/webtext_gpt2" "outputs/webtext_gpt2-large" "outputs/webtext_gpt2-medium" "outputs/webtext_gpt2-xl"
+for outer_dir in "outputs/webtext" "outputs/webtext_gpt2" "outputs/webtext_gpt2-large" "outputs/webtext_gpt2-medium" "outputs/webtext_gpt2-xl"
 do
 for dir in outs save generations metrics
 do
@@ -10,5 +10,3 @@ do
     mkdir -p ${outer_dir}/${dir}/basic
 done
 done
-
-
