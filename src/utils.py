@@ -5,6 +5,7 @@ import json
 import random
 from tqdm.auto import tqdm as tqdm_original
 import torch
+import pickle as pkl
 
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from transformers import RobertaModel, RobertaTokenizer
@@ -204,6 +205,16 @@ def load_json_dataset(data_dir, dataset_name, split=None, max_num_data=np.inf):
     return texts
 
 def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=None, ds_name=None, split='valid'):
+    if split is None:
+        path = os.path.join(data_dir, f'{dataset_name}_tokenized.pkl')
+    else:
+        path = os.path.join(data_dir, f'{dataset_name}_tokenized.{split}.pkl')
+
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            tokenized_texts = pkl.load(f)
+        return tokenized_texts
+
     if not (max_len <= 1024 and max_num_data >= 2000):
         print(f"max_len={max_len}, max_num_data={max_num_data} are insufficent")
     t1 = time.time()
@@ -229,6 +240,10 @@ def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=N
 
     t2 = time.time()
     print(f'tokenizing time: {round(t2-t1, 2)}')
+
+    with open(path, 'wb') as f:
+        pkl.dump(tokenized_texts, f)
+
     return tokenized_texts
 
 def decode_samples_from_lst(tokenizer, lst):

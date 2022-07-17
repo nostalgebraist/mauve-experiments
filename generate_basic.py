@@ -87,14 +87,14 @@ if __name__ == '__main__':
         with open(output_file_name, 'wb') as f:
             pkl.dump([samples, is_completed, unique_ngram_frac, ppl, args], f)
 
-    # decode samples
-    print('Deocding...')
-    if os.path.isfile(f'{folder_name}/sentences_{name}.p'):
-        print(f'Decode samples: {folder_name}/sentences_{name}.p already exist. Skipping.')
-    else:
-        decoded_samples = utils.decode_samples_from_lst(tokenizer, samples)
-        with open(f'{folder_name}/sentences_{name}.p', 'wb') as f:
-            pkl.dump([decoded_samples, is_completed], f)
+    # # decode samples
+    # print('Deocding...')
+    # if os.path.isfile(f'{folder_name}/sentences_{name}.p'):
+    #     print(f'Decode samples: {folder_name}/sentences_{name}.p already exist. Skipping.')
+    # else:
+    #     decoded_samples = utils.decode_samples_from_lst(tokenizer, samples)
+    #     with open(f'{folder_name}/sentences_{name}.p', 'wb') as f:
+    #         pkl.dump([decoded_samples, is_completed], f)
 
     # featurize samples
     print('Featurizing...')
