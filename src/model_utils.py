@@ -158,7 +158,7 @@ def featurize_sequential(model, ds_tokens):
     return torch.cat(feats)
 
 @torch.no_grad()
-def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id):
+def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp):
     device = next(model.parameters()).device
     t1 = time.time()
     feats = []

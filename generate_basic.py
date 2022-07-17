@@ -109,7 +109,7 @@ if __name__ == '__main__':
             feats_out_fn = f'{folder_name}/feats{feats_prefix}_{name}.pt'
             print(f'Featurizing l = {l}...')
             samples_3 = [x[:, :l] for x in samples_2]
-            feats = src.model_utils.featurize_sequential_batched(model, samples_3, args.featurize_batch_size, tokenizer.pad_token_id)
+            feats = src.model_utils.featurize_sequential_batched(model, samples_3, args.featurize_batch_size, tokenizer.pad_token_id, args.amp)
             torch.save(feats, feats_out_fn)
     else:  # use features from model
         feats = src.model_utils.featurize_sequential(model, samples_2)
