@@ -46,6 +46,7 @@ def generate_text_from_recalibrated_model(
         breakruns_tau=0.035,
         breakruns_base_temperature=1.0,
         tokenizer=None,
+        stream_hook=None,
         **model_kwargs) -> torch.LongTensor:
     r"""
     Generates sequences for models with a language modeling head. The method currently supports greedy decoding,
@@ -278,7 +279,7 @@ def generate_text_from_recalibrated_model(
     if num_beams > 1:
         raise ValueError('Cannot handle num_beams > 1')
     else:
-        output = _generate_no_beam_search(model, input_ids,
+        output = sgenerate_no_beam_search(model, input_ids,
                                           cur_len=cur_len, max_length=max_length, min_length=min_length,
                                           do_sample=do_sample, temperature=temperature, top_k=top_k, top_p=top_p,
                                           repetition_penalty=repetition_penalty,
@@ -286,17 +287,36 @@ def generate_text_from_recalibrated_model(
                                           pad_token_id=pad_token_id, eos_token_id=eos_token_id,
                                           batch_size=effective_batch_size, attention_mask=attention_mask,
                                           use_cache=use_cache, model_kwargs=model_kwargs,
-                                          brlp=brlp)
+                                          brlp=brlp,
+                                          stream_hook=stream_hook)
+    return list(output)
 
-    return output
 
+def sgenerate_no_beam_search(model, input_ids,
+                             cur_len, max_length, min_length, do_sample,
+                             temperature, top_k, top_p,
+                             repetition_penalty, no_repeat_ngram_size, bad_words_ids,
+                             pad_token_id, eos_token_id, batch_size, attention_mask, use_cache, model_kwargs,
+                             brlp=None,
+                             stream_hook=None):
+    output = _generate_no_beam_search(model, input_ids,
+                                      cur_len=cur_len, max_length=max_length, min_length=min_length,
+                                      do_sample=do_sample, temperature=temperature, top_k=top_k, top_p=top_p,
+                                      repetition_penalty=repetition_penalty,
+                                      no_repeat_ngram_size=no_repeat_ngram_size, bad_words_ids=bad_words_ids,
+                                      pad_token_id=pad_token_id, eos_token_id=eos_token_id,
+                                      batch_size=effective_batch_size, attention_mask=attention_mask,
+                                      use_cache=use_cache, model_kwargs=model_kwargs,
+                                      brlp=brlp,
+                                      stream_hook=stream_hook)
 
 def _generate_no_beam_search(model, input_ids,
                              cur_len, max_length, min_length, do_sample,
                              temperature, top_k, top_p,
                              repetition_penalty, no_repeat_ngram_size, bad_words_ids,
                              pad_token_id, eos_token_id, batch_size, attention_mask, use_cache, model_kwargs,
-                             brlp=None):
+                             brlp=None,
+                             stream_hook=None):
     """Generate sequences for each example without beam search (num_beams == 1).
     All returned sequence are generated independently.
     """
@@ -371,6 +391,18 @@ def _generate_no_beam_search(model, input_ids,
             # unfinished_sents is set to zero if eos in sentence
             unfinished_sents.mul_((~eos_in_sents).long())
 
+            news = []
+            for seq in input_ids[~unfinished_sents]:
+                news.append(next(stream_hook))
+                yield seq
+
+            input_ids = input_ids[unfinished_sents]
+            if len(news) > 0:
+                input_ids = torch.cat([input_ids, torch.stack(news, dim=0)])
+                # regen cache etc
+                past = None
+                attention_mask = None
+
         # stop when there is a </s> in each sentence, or if we exceed the maximul length
         if unfinished_sents.max() == 0:
             break
@@ -381,8 +413,8 @@ def _generate_no_beam_search(model, input_ids,
                 [attention_mask, attention_mask.new_ones((attention_mask.shape[0], 1))], dim=-1
             )
 
-    return input_ids
-
+    for seq in input_ids:
+        yield seq
 
 def batch_fn(iterable, n=1):
     # n: batch size
