@@ -45,6 +45,7 @@ def make_basic_parser():
     parser.add_argument('--amp', action='store_true')
     parser.add_argument('--fp16', action='store_true')
     parser.add_argument('--custom_file_identifier', type=str, default='')
+    parser.add_argument('--featurize_batch_size', type=int, default=1)
     return parser
 
 def make_metrics_parser():

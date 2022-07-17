@@ -10,6 +10,7 @@ import torch
 from torch.nn.functional import softmax, log_softmax, relu
 
 from src.utils import tqdm
+import src.generation_utils as gen_utils
 
 
 @torch.no_grad()
@@ -152,6 +153,29 @@ def featurize_sequential(model, ds_tokens):
              output_hidden_states=True, return_dict=True)
         h = outs.hidden_states[-1]  # (batch_size, seq_len, dim)
         feats.append(h[:, -1, :].cpu())
+    t2 = time.time()
+    print(f'Featurize time: {round(t2-t1, 2)}')
+    return torch.cat(feats)
+
+@torch.no_grad()
+def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id):
+    device = next(model.parameters()).device
+    t1 = time.time()
+    feats = []
+    b_valid_ds = list(gen_utils.batch_fn(ds_tokens, batch_size))
+    with torch.cuda.amp.autocast(amp):
+        for b in tqdm(b_valid_ds):
+            lens = [min(prompt_size, sen.shape[1]) for sen in b]
+            prompt = torch.cat([sen[:, :prompt_size] + (prompt_size - l) * [pad_token_id] for sen, l in zip(b, lens)])
+
+            prompt = prompt.to(device)
+            outs = model(input_ids=prompt, past_key_values=None,
+                 output_hidden_states=True, return_dict=True)
+            h = outs.hidden_states[-1]  # (batch_size, seq_len, dim)
+
+        lens = torch.LongTensor(lens).to(device)
+        b_feats = torch.take_along_dim(h, lens, 1).cpu()
+        feats.append(b_feats)
     t2 = time.time()
     print(f'Featurize time: {round(t2-t1, 2)}')
     return torch.cat(feats)
