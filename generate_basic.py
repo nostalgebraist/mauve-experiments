@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 model,
                 samples_3,
                 batch_size=args.featurize_batch_size,
-                pad_token_id=tokenizer.pad_token_id,
+                pad_token_id=tokenizer.eos_token_id,
                 amp=args.amp,
                 max_len=l,
             )
