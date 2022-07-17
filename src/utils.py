@@ -148,7 +148,28 @@ def get_device_from_arg(device_id):
     else:
         return CPU_DEVICE
 
+def no_init(loading_code, **kwargs):
+    def dummy(self):
+        return
+
+    modules = [torch.nn.Linear, torch.nn.Embedding, torch.nn.LayerNorm]
+    original = {}
+    for mod in modules:
+        original[mod] = mod.reset_parameters
+        mod.reset_parameters = dummy
+
+    result = loading_code(**kwargs)
+    for mod in modules:
+        mod.reset_parameters = original[mod]
+
+    return result
+
+
 def get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE):
+    return no_init(_get_model_and_tokenizer, model_name=model_name, device=device)
+
+
+def _get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE):
     if 'gpt3' in model_name: # For GPT-3 evals, use GPT-2 large
         model_name = 'gpt2-large'
     if 'gpt2' in model_name:

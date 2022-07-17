@@ -164,7 +164,7 @@ def featurize_sequential_batched(model, ds_tokens, batch_size, pad_token_id, amp
     feats = []
     b_valid_ds = list(gen_utils.batch_fn(ds_tokens, batch_size))
 
-    pad_t = th.as_tensor([[pad_token_id]], device=device)
+    pad_t = torch.as_tensor([[pad_token_id]], device=device)
     with torch.cuda.amp.autocast(amp):
         for b in tqdm(b_valid_ds):
             lens = [min(max_len, sen.shape[1]) for sen in b]
