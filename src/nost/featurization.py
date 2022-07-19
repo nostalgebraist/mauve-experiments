@@ -5,9 +5,8 @@ from tqdm.auto import tqdm, trange
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunMetadata, RunDirectory
 from src.nost.compute_mauve_from_package import get_features_from_input
-from src.nost.util import load_ground_truth
+from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 
-# load_ground_truth(enc, data_dir, prompt_source_file, min_len
 
 def featurize_tokens(tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0):
     return get_features_from_input(
@@ -45,7 +44,12 @@ class Featurizer:
     def feats_to_do(self):
         return [r for r in self.runs.param_grid if r not in self.complete_feats]
 
-    def featurize_run(self, params: GenerationRunParams, batch_size: int):
+    def do_remaining_feats(self, bs_or_bs_map: Union[int, dict], post_run_callback=None):
+        for params in self.feats_to_do():
+            bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
+            self.featurize_run(params, bs, post_run_callback=post_run_callback)
+
+    def featurize_run(self, params: GenerationRunParams, batch_size: int, post_run_callback=None):
         self.featurize_ground_truth(params, batch_size)  # skips internally if already done
 
         tokens = self.run_directory.load_tokens(params)
@@ -61,6 +65,8 @@ class Featurizer:
         self.run_directory.save_feats(params, feats)
         self.run_directory.record_feats(params)
 
+        if post_run_callback is not None:
+            post_run_callback(self.run_directory, params)
 
     def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int):
         if os.path.exists(self.run_directory.ground_truth_feats_path(params)):

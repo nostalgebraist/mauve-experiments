@@ -6,7 +6,7 @@ from tqdm.auto import tqdm, trange
 from transformers import LogitsProcessorList
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunMetadata, RunDirectory
-from src.nost.util import load_ground_truth
+from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 from src.utils import get_model_and_tokenizer
 
 from src.decoding_methods import BreakrunsLogitsProcessor
@@ -84,22 +84,7 @@ class GenerationRunner:
 
     def do_remaining_runs(self, bs_or_bs_map: Union[int, dict], debug=False, post_run_callback=None):
         for params in self.runs_to_do():
-            bs = None
-
-            if isinstance(bs_or_bs_map, int):
-                bs = bs_or_bs_map
-            elif isinstance(bs_or_bs_map, dict):
-                if params.max_len in bs_or_bs_map:
-                    bs = bs_or_bs_map[params.max_len]
-                else:
-                    for val in sorted(bs_or_bs_map.keys(), reverse=True):
-                        if val < params.max_len:
-                            bs = val
-                            break
-                print(f'Using bs={bs} for L={params.max_len}')
-            else:
-                raise TypeError(type(bs_or_bs_map))
-
+            bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
             self._do_run(params, bs, debug=debug, post_run_callback=post_run_callback)
 
     def _do_run(self, params: GenerationRunParams, bs: int, debug=False, post_run_callback=None):
