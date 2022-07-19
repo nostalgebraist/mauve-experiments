@@ -25,7 +25,7 @@ except (ImportError, ModuleNotFoundError):
 
 if FOUND_TORCH and FOUND_TRANSFORMERS:
     # only needed for tokenizing
-    from .utils import get_tokenizer, get_model, featurize_tokens_from_model, get_device_from_arg
+    from .utils_from_package import get_tokenizer, get_model, featurize_tokens_from_model, get_device_from_arg
 
 
 MODEL, TOKENIZER, MODEL_NAME = None, None, None
@@ -55,7 +55,7 @@ def compute_mauve(
     :param ``num_buckets``: the size of the histogram to quantize P and Q. Options: ``'auto'`` (default, which is n/10) or an integer.
     :param ``pca_max_data``: the number data points to use for PCA. If `-1`, use all the data. Default -1.
     :param ``kmeans_explained_var``: amount of variance of the data to keep in dimensionality reduction by PCA. Default 0.9.
-    :param ``kmeans_num_redo``: number of times to redo k-means clustering (the best objective is kept). Default 5. 
+    :param ``kmeans_num_redo``: number of times to redo k-means clustering (the best objective is kept). Default 5.
         Try reducing this to 1 in order to reduce running time.
     :param ``kmeans_max_iter``: maximum number of k-means iterations. Default 500.
         Try reducing this to 100 in order to reduce running time.
@@ -64,7 +64,7 @@ def compute_mauve(
     :param ``device_id``: Device for featurization. Supply gpu_id (e.g. 0 or 3) to use GPU or -1 to use CPU.
     :param ``max_text_length``: maximum number of tokens to consider. Default 1024.
     :param ``divergence_curve_discretization_size``: Number of points to consider on the divergence curve. Default 25.
-        Larger values do not offer much of a difference. 
+        Larger values do not offer much of a difference.
     :param ``mauve_scaling_factor``: The constant``c`` from the paper. Default 5.
         See `Best Practices <index.html#best-practices-for-mauve>`_ for details.
     :param ``verbose``: If True, print running time updates.
@@ -77,7 +77,7 @@ def compute_mauve(
     :return: an object with fields p_hist, q_hist, divergence_curve and mauve.
 
     * ``out.mauve`` is a number between 0 and 1, the MAUVE score. Higher values means P is closer to Q.
-    * ``out.frontier_integral``, a number between 0 and 1. Lower values mean that P is closer to Q. 
+    * ``out.frontier_integral``, a number between 0 and 1. Lower values mean that P is closer to Q.
     * ``out.p_hist`` is the obtained histogram for P. Same for ``out.q_hist``.
     * ``out.divergence_curve`` contains the points in the divergence curve. It is of shape (m, 2), where m is ``divergence_curve_discretization_size``
 
@@ -127,7 +127,7 @@ def compute_mauve(
     )
     fi_score = get_fronter_integral(p, q)
     to_return = SimpleNamespace(
-        p_hist=p, q_hist=q, divergence_curve=divergence_curve, 
+        p_hist=p, q_hist=q, divergence_curve=divergence_curve,
         mauve=mauve_score,
         frontier_integral=fi_score,
         num_buckets=num_buckets,
@@ -143,13 +143,13 @@ def get_features_from_input(features, tokenized_texts, texts,
         if not FOUND_TORCH:
             raise ModuleNotFoundError(
                 """PyTorch not found. Please install PyTorch if you would like to use the featurization.
-                    For details, see `https://github.com/krishnap25/mauve` 
+                    For details, see `https://github.com/krishnap25/mauve`
                     and `https://pytorch.org/get-started/locally/`.
                 """)
         if not FOUND_TRANSFORMERS:
             raise ModuleNotFoundError(
                 """Transformers not found. Please install Transformers if you would like to use the featurization.
-                    For details, see `https://github.com/krishnap25/mauve` 
+                    For details, see `https://github.com/krishnap25/mauve`
                     and `https://huggingface.co/transformers/installation.html`.
                 """)
 
@@ -262,5 +262,5 @@ def get_fronter_integral(p, q, scaling_factor=2):
             t1 = p1 + q1
             t2 = p1 * q1 * (math.log(p1) - math.log(q1)) / (p1 - q1)
             total += 0.25 * t1 - 0.5 * t2
-        # else: contribution is 0 
+        # else: contribution is 0
     return total * scaling_factor
