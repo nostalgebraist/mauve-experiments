@@ -9,14 +9,14 @@ from src.nost.compute_mauve_from_package import get_features_from_input
 from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 
 
-def featurize_tokens(tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0):
+def featurize_tokens(tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0, name=''):
     return get_features_from_input(
         features=None,
         tokenized_texts=tokens[:max_examples],
         texts=None,
         featurize_model_name=featurize_model_name,
         max_len=None,  # unused
-        name='',
+        name=name,
         batch_size=batch_size,
         verbose=True,
         device_id=0
@@ -61,6 +61,7 @@ class Featurizer:
             batch_size=batch_size,
             featurize_model_name=self.featurize_model_name,
             device_id=self.device_id,
+            name=params.uid,
         )
 
         self.run_directory.save_feats(params, feats)
@@ -88,6 +89,7 @@ class Featurizer:
             batch_size=batch_size,
             featurize_model_name=self.featurize_model_name,
             device_id=self.device_id,
+            name=params.prompt_source_file,
         )
 
         self.run_directory.save_groundtruth_feats(params, feats)
