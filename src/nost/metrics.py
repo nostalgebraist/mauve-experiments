@@ -35,6 +35,7 @@ class MetricsComputer:
 
     def do_remaining_metrics(self, seed, post_run_callback=None, **kwargs):
         for params in self.metrics_to_do(seed):
+            self.summarize_metrics(seed)
             self.compute_metrics(params, seed=seed, post_run_callback=post_run_callback, **kwargs)
 
     def compute_metrics(self, params, seed, post_run_callback=None, **kwargs):
