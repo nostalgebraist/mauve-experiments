@@ -134,6 +134,6 @@ class GenerationRunner:
         delta = time.time() - t1
         meta = RunMetadata(runtime_seconds=delta)
 
-        th.save(outs, self.run_directory.fullpath(params.uid + '.pt'))
+        self.run_directory.save_tokens(params, outs)
 
         self.run_directory.record(params, meta, writefile=True)

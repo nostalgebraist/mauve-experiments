@@ -198,3 +198,14 @@ class RunDirectory:
         del self.meta[params]
         del self.params_paths[params]
         del self.meta_paths[params]
+
+    def tokens_path(self, params):
+        return self.fullpath(params.uid + '.pt')
+
+    def save_tokens(self, params, tokens):
+        import torch as th
+        th.save(tokens, self.tokens_path(parahs))
+
+    def load_tokens(self, params):
+        import torch as th
+        return th.load(self.tokens_path(parahs))
