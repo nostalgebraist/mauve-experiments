@@ -53,7 +53,7 @@ class BreakrunsLogitsProcessor(LogitsProcessor):
 
         scores = scores / eff_temperature[:, None].expand_as(scores)
 
-        return scores.contiguous()
+        return scores#.contiguous()
 
 
 # taken from https://github.com/cimeister/typical-sampling/blob/typical-pr/src/transformers/generation_logits_process.py

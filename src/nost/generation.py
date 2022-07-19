@@ -138,17 +138,20 @@ class GenerationRunner:
             offset_next = min(have+bs, params.max_num_generations)
             b = th.cat([t[:, :params.prompt_len] for t in prompt_data[have:offset_next]]).to(self.device)
 
-            out = self._model.generate(
-                b,
-                do_sample=True,
-                use_cache=True,
-                eos_token_id=50256,
-                pad_token_id=50256,
-                max_length=params.max_len,
-                temperature=params_effective.temperature,
-                top_p=params.top_p,
-                top_k=params.top_k,
-            )
+            with th.profiler.profile() as _p:
+                out = self._model.generate(
+                    b,
+                    do_sample=True,
+                    use_cache=True,
+                    eos_token_id=50256,
+                    pad_token_id=50256,
+                    max_length=params.max_len,
+                    temperature=params_effective.temperature,
+                    top_p=params.top_p,
+                    top_k=params.top_k,
+                )
+            print(_p.key_averages().table(sort_by="self_cuda_time_total", row_limit=50))
+            raise ValueError
 
             outs.extend([s[s != 50256] for s in out.cpu()])
             have = len(outs)
