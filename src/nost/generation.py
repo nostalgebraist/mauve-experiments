@@ -134,7 +134,7 @@ class GenerationRunner:
             have = len(outs)
 
         delta = time.time() - t1
-        meta = RunMetadata(runtime_seconds=delta)
+        meta = RunMetadata(runtime_seconds=delta, batch_size=bs)
 
         self.run_directory.save_tokens(params, outs)
 
