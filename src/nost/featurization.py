@@ -50,8 +50,8 @@ class Featurizer:
             bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
             self.featurize_run(params, bs, post_run_callback=post_run_callback)
 
-    def featurize_run(self, params: GenerationRunParams, batch_size: int, post_run_callback=None):
-        self.featurize_ground_truth(params, batch_size)  # skips internally if already done
+    def featurize_run(self, params: GenerationRunParams, batch_size: int, post_run_callback=None, post_run_callback_groundtruth=None):
+        self.featurize_ground_truth(params, batch_size, post_run_callback_groundtruth)  # skips internally if already done
 
         tokens = self.run_directory.load_tokens(params)
 
@@ -70,7 +70,7 @@ class Featurizer:
         if post_run_callback is not None:
             post_run_callback(self.run_directory, params)
 
-    def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int):
+    def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int, post_run_callback=None):
         if os.path.exists(self.run_directory.ground_truth_feats_path(params)):
             return
 
@@ -93,3 +93,6 @@ class Featurizer:
         )
 
         self.run_directory.save_groundtruth_feats(params, feats)
+
+        if post_run_callback is not None:
+            post_run_callback(self.run_directory, params)
