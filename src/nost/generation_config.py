@@ -7,6 +7,7 @@ from io import StringIO
 from itertools import product, chain
 from dataclasses import dataclass, asdict, astuple, fields, replace
 from typing import Optional, TypeVar, Type, Tuple
+from collections import defaultdict
 
 T = TypeVar("T")
 
@@ -217,6 +218,29 @@ class RunDirectory:
                     metrics = json.load(f)
                 key = (uids_to_params[uid], seed)
                 self.metrics[key] = metrics
+
+    def collect_runs_over_seeds(self):
+        collected = defaultdict(list)
+
+        for params in self.complete_runs:
+            key = params.replace(seed=None)
+            collected[key].append(params)
+
+        return collected
+
+    def collect_metrics_over_seeds(self):
+        collected_runs = self.collect_runs_over_seeds()
+
+        results = []
+        for params, runs in collected_runs.items():
+            for true_params in runs:
+                if true_params not in self.metrics:
+                    continue
+                row = {}
+                row.update(true_params.to_dict())
+                row.update(self.metrics[true_params])
+                results.append(row)
+        return results
 
     def tokens_path(self, params):
         return self.fullpath(params.uid + '.pt')
