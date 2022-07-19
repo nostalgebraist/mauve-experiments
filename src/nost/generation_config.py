@@ -127,7 +127,7 @@ class GenerationRuns(DictJsonMixin):
 
         return f"GenerationRuns\nvar_grid\n{_indent(pformat(var_grid,))}\nconstants\n{_indent(pformat(constants))})"
 
-    def combine(self, other: GenerationRuns) -> GenerationRuns:
+    def combine(self, other: 'GenerationRuns') -> 'GenerationRuns':
         param_grid = tuple()
 
         # not using set to preserve order
