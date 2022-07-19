@@ -149,7 +149,7 @@ class RunDirectory:
         self.params_paths = {}
         self.meta_paths = {}
 
-        self.feat_path = os.path.join(self.path, 'feats')
+        self.path_feats = os.path.join(self.path, 'feats')
         self.complete_feats = set()
 
         self.scan()
@@ -158,7 +158,7 @@ class RunDirectory:
         return os.path.join(self.path, path)
 
     def fullpath_feats(self, path):
-        return os.path.join(self.feats_path, path)
+        return os.path.join(self.path_feats, path)
 
     def scan(self):
         os.makedirs(self.path, exist_ok=True)
@@ -185,11 +185,11 @@ class RunDirectory:
         self.scan_feats()
 
     def scan_feats(self):
-        os.makedirs(self.feats_path, exist_ok=True)
+        os.makedirs(self.path_feats, exist_ok=True)
 
         uids_to_params = {params.uid: params for params in self.complete_runs}
 
-        for fp in os.listdir(self.feats_path):
+        for fp in os.listdir(self.path_feats):
             uid = fp.split("_")[0]
             if uid in uids_to_params:
                 self.complete_feats.add(uids_to_params[uid])
