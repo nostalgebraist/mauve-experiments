@@ -27,7 +27,7 @@ def featurize_tokens(
 
         assert None not in unsorter
 
-        tokens = tokens[:, sorter]
+        tokens = tokens[sorter]
 
     feat = get_features_from_input(
         features=None,
@@ -42,7 +42,7 @@ def featurize_tokens(
     )
 
     if minimize_padding:
-        feat = feat[unsorter, :]
+        feat = feat[unsorter]
 
     return feat
 
