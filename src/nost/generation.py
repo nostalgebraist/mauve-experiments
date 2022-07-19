@@ -138,7 +138,7 @@ class GenerationRunner:
             offset_next = min(have+bs, params.max_num_generations)
             b = th.cat([t[:, :params.prompt_len] for t in prompt_data[have:offset_next]]).to(self.device)
 
-            with th.profiler.profile(with_stack=True, activities=[th.profiler.ProfilerActivity.CUDA]) as _p:
+            with th.profiler.profile(with_stack=True) as _p:
                 out = self._model.generate(
                     b,
                     do_sample=True,
