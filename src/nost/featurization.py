@@ -1,3 +1,5 @@
+from typing import Union
+
 import torch as th
 from tqdm.auto import tqdm, trange
 
