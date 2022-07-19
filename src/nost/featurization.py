@@ -1,10 +1,10 @@
 import os
-from typing import Union
+from typing import Union, Optional
 
 import torch as th
 from tqdm.auto import tqdm, trange
 
-from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunMetadata, RunDirectory
+from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunDirectory
 from src.nost.compute_mauve_from_package import get_features_from_input
 from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 
@@ -49,10 +49,9 @@ def featurize_tokens(
 
 class Featurizer:
     def __init__(
-        self, run_directory: Union[str, RunDirectory], runs: GenerationRuns, device_id=0, data_dir='data',
+        self, run_directory: Union[str, RunDirectory], device_id=0, data_dir='data',
         featurize_model_name='gpt2-large',
     ):
-        self.runs = runs
         self.device_id = device_id
         self.data_dir = data_dir
         self.featurize_model_name = featurize_model_name
@@ -64,10 +63,10 @@ class Featurizer:
 
     @property
     def complete_feats(self):
-        return self.run_directory.complete_feats.intersection(self.runs.param_grid)
+        return self.run_directory.complete_feats.intersection(self.run_directory.complete_runs)
 
     def feats_to_do(self):
-        return [r for r in self.runs.param_grid if r not in self.complete_feats]
+        return self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
 
     def do_remaining_feats(self, bs_or_bs_map: Union[int, dict], post_run_callback=None, minimize_padding=True):
         for params in self.feats_to_do():

@@ -152,6 +152,9 @@ class RunDirectory:
         self.path_feats = os.path.join(self.path, 'feats')
         self.complete_feats = set()
 
+        self.path_metrics = os.path.join(self.path, 'metrics')
+        self.complete_metrics = set()
+
         self.scan()
 
     def fullpath(self, path):
@@ -183,6 +186,7 @@ class RunDirectory:
                     pass
 
         self.scan_feats()
+        self.scan_metrics()
 
     def scan_feats(self):
         os.makedirs(self.path_feats, exist_ok=True)
@@ -193,6 +197,16 @@ class RunDirectory:
             uid = fp.split("_")[0]
             if uid in uids_to_params:
                 self.complete_feats.add(uids_to_params[uid])
+
+    def scan_metrics(self):
+        os.makedirs(self.path_metrics, exist_ok=True)
+
+        uids_to_params = {params.uid: params for params in self.complete_runs}
+
+        for fp in os.listdir(self.path_metrics):
+            uid = fp.split("_")[0]
+            if uid in uids_to_params:
+                self.complete_metrics.add(uids_to_params[uid])
 
     def tokens_path(self, params):
         return self.fullpath(params.uid + '.pt')
