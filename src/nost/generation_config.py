@@ -1,3 +1,4 @@
+import os
 import json
 import hashlib
 
@@ -75,6 +76,11 @@ class GenerationRunParams(DataclassHelpersMixin):
     mirostat_tau: Optional[float] = None
 
 
+@dataclass
+class RunMetadata(DictJsonMixin):
+    runtime_seconds: float
+
+
 class GenerationRuns(DictJsonMixin):
     def __init__(self, param_grid):
         self.param_grid = param_grid
@@ -130,3 +136,60 @@ class GenerationRuns(DictJsonMixin):
                 param_grid += (params,)
 
         return GenerationRuns(param_grid)
+
+
+class RunDirectory:
+    def __init__(self, path: str):
+        self.path = path
+
+        self.complete_runs = set()
+        self.meta = {}
+
+        self.params_paths = {}
+        self.meta_paths = {}
+
+        self.scan()
+
+    def fullpath(self, path):
+        return os.path.join(self.path, path)
+
+    def scan(self):
+        os.makedirs(self.path, exist_ok=True)
+
+        for fp in os.listdir(self.path):
+            full_path = self.fullpath(fp)
+
+            if full_path.endswith('_params.json'):
+                params = GenerationRunParams.from_json_file(full_path)
+                self.complete_runs.add(params)
+                self.params_paths[params] = full_path
+
+                meta_path = full_path[:-len('_params.json')] + '_meta.json'
+
+                meta = RunMetadata.from_json_file(meta_path)
+                self.meta[params] = meta
+                self.meta_paths[params] = meta_path
+
+    def record(self, params, meta, writefile=True):
+        self.complete_runs.add(params)
+
+        if meta is not None:
+            self.meta[params] = meta
+
+        if writefile:
+            params_path = self.fullpath(params.uid + '_params.json')
+            params.to_json_file(params_path)
+
+            if meta is not None:
+                meta_path = self.fullpath(params.uid + '_meta.json')
+                meta.to_json_file(meta_path)
+
+    def remove(self, params, deletefiles=True):
+        if deletefiles:
+            os.remove(self.params_paths[params])
+            os.remove(self.meta_paths[params])
+
+        self.complete_runs.remove(params)
+        del self.meta[params]
+        del self.params_paths[params]
+        del self.meta_paths[params]
