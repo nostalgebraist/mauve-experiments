@@ -68,10 +68,18 @@ class Featurizer:
     def feats_to_do(self):
         return self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
 
-    def do_remaining_feats(self, bs_or_bs_map: Union[int, dict], post_run_callback=None, minimize_padding=True):
+    def do_remaining_feats(
+        self, bs_or_bs_map: Union[int, dict], post_run_callback=None, post_run_callback_groundtruth=None, minimize_padding=True
+    ):
         for params in self.feats_to_do():
             bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
-            self.featurize_run(params, bs, post_run_callback=post_run_callback, minimize_padding=minimize_padding)
+            self.featurize_run(
+                params,
+                bs,
+                post_run_callback=post_run_callback,
+                post_run_callback_groundtruth=post_run_callback_groundtruth,
+                minimize_padding=minimize_padding
+            )
 
     def featurize_run(
         self, params: GenerationRunParams, batch_size: int, post_run_callback=None, post_run_callback_groundtruth=None,
