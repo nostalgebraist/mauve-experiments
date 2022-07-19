@@ -160,15 +160,20 @@ class RunDirectory:
             full_path = self.fullpath(fp)
 
             if full_path.endswith('_params.json'):
-                params = GenerationRunParams.from_json_file(full_path)
-                self.complete_runs.add(params)
-                self.params_paths[params] = full_path
+                try:
+                    params = GenerationRunParams.from_json_file(full_path)
 
-                meta_path = full_path[:-len('_params.json')] + '_meta.json'
+                    meta_path = full_path[:-len('_params.json')] + '_meta.json'
 
-                meta = RunMetadata.from_json_file(meta_path)
-                self.meta[params] = meta
-                self.meta_paths[params] = meta_path
+                    meta = RunMetadata.from_json_file(meta_path)
+
+                    self.complete_runs.add(params)
+                    self.params_paths[params] = full_path
+
+                    self.meta[params] = meta
+                    self.meta_paths[params] = meta_path
+                except (json.JSONDecodeError, FileNotFoundError):
+                    pass
 
     def record(self, params, meta, writefile=True):
         self.complete_runs.add(params)
