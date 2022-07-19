@@ -204,8 +204,8 @@ class RunDirectory:
 
     def save_tokens(self, params, tokens):
         import torch as th
-        th.save(tokens, self.tokens_path(parahs))
+        th.save(tokens, self.tokens_path(params))
 
     def load_tokens(self, params):
         import torch as th
-        return th.load(self.tokens_path(parahs))
+        return th.load(self.tokens_path(params))
