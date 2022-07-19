@@ -5,7 +5,7 @@ from pprint import pformat
 import torch as th
 from tqdm.auto import tqdm, trange
 
-from src.nost.generation_config import GenerationRunParams, RunDirectory
+from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunDirectory
 from src.nost.compute_mauve_from_package import compute_mauve
 
 
@@ -24,6 +24,14 @@ class MetricsComputer:
 
     def metrics_to_do(self, seed):
         return self.run_directory.complete_feats.difference(self.complete_metrics(seed))
+
+    def summarize_metrics(self, seed):
+        gr = GenerationRuns(self.run_directory.complete_runs)
+        vars, _ = gr.cv_form()
+        for p, v in zip(gr.param_grid, vars):
+            if (p, seed) in mc.run_directory.metrics:
+                print(v)
+                print(f"\t{mc.run_directory.metrics[(p, seed)]['mauve']}")
 
     def do_remaining_metrics(self, seed, post_run_callback=None, **kwargs):
         for params in self.metrics_to_do(seed):
