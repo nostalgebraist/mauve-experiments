@@ -17,7 +17,7 @@ def featurize_tokens(
     tokens = tokens_
 
     if minimize_padding:
-        token_length = [t.shape[1] for t in tokens]
+        token_length = [t.view(-1).shape[0] for t in tokens]
 
         sorter = sorted(list(range(len(token_length))), key=lambda i: token_length[i])
 
