@@ -153,7 +153,7 @@ class RunDirectory:
         self.complete_feats = set()
 
         self.path_metrics = os.path.join(self.path, 'metrics')
-        self.complete_metrics = set()
+        self.metrics = {}
 
         self.scan()
 
@@ -162,6 +162,9 @@ class RunDirectory:
 
     def fullpath_feats(self, path):
         return os.path.join(self.path_feats, path)
+
+    def fullpath_metrics(self, path):
+        return os.path.join(self.path_metrics, path)
 
     def scan(self):
         os.makedirs(self.path, exist_ok=True)
@@ -204,9 +207,16 @@ class RunDirectory:
         uids_to_params = {params.uid: params for params in self.complete_runs}
 
         for fp in os.listdir(self.path_metrics):
-            uid = fp.split("_")[0]
+            segs = fp.split(".")[0].split("_")
+            if len(segs) < 2:
+                continue
+            uid, seed = segs[:2]
+            seed = int(seed[len("seed"):])
             if uid in uids_to_params:
-                self.complete_metrics.add(uids_to_params[uid])
+                with open(self.fullpath_metrics(fp), 'r') as f:
+                    metrics = json.load(f)
+                key = (uids_to_params[uid], seed)
+                self.metrics[key] = metrics
 
     def tokens_path(self, params):
         return self.fullpath(params.uid + '.pt')
@@ -248,6 +258,9 @@ class RunDirectory:
     def record_feats(self, params):
         self.complete_feats.add(params)
 
+    def record_metrics(self, params, seed, metrics):
+        self.metrics[(params, seed)] = metrics
+
     def save_tokens(self, params, tokens):
         import torch as th
         th.save(tokens, self.tokens_path(params))
@@ -267,3 +280,11 @@ class RunDirectory:
     def load_feats(self, params):
         import torch as th
         return th.load(self.feats_path(params))
+
+    def load_groundtruth_feats(self, params):
+        import torch as th
+        return th.load(self.ground_truth_feats_path(params))
+
+    def save_metrics(self, params, seed, metrics):
+        with open(self.fullpath_metrics(f"{params.uid}_seed{seed}.json"), 'w') as f:
+            json.dump(metrics, f)
