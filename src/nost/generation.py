@@ -3,6 +3,7 @@ from typing import Union
 
 import torch as th
 from tqdm.auto import tqdm, trange
+from transformers import LogitsProcessorList
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunMetadata, RunDirectory
 from src.utils import get_model_and_tokenizer, load_and_tokenize_data
