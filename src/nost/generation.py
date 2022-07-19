@@ -29,7 +29,7 @@ def make_override_get_breakruns(base_temperature, tau, tokenizer=None, debug=Fal
 
 
 class GenerationRunner:
-    def __init__(self, run_directory: Union[str, RunDirectory], runs: GenerationRuns, device=0, data_dir='data'):
+    def __init__(self, run_directory: Union[str, RunDirectory], runs: GenerationRuns, device='cuda:0', data_dir='data'):
         self.runs = runs
         self.device = device
         self.data_dir = data_dir
