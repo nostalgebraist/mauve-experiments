@@ -82,6 +82,7 @@ class Featurizer:
         )
 
         tokens = [seq[:, :params.max_len] for seq in tokens]
+        print(f"max token len: {max(seq.shape[1] for seq in tokens)}")
 
         feat = featurize_tokens(
             tokens,
