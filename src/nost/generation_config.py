@@ -77,7 +77,7 @@ class GenerationRunParams(DataclassHelpersMixin):
 
 
 @dataclass
-class RunMetadata(DictJsonMixin):
+class RunMetadata(DataclassHelpersMixin):
     runtime_seconds: float
 
 
