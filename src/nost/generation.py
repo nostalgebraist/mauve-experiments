@@ -131,9 +131,9 @@ class GenerationRunner:
             outs.extend([s[s != 50256] for s in out.cpu()])
             have = len(outs)
 
-    delta = time.time() - t1
-    meta = RunMetadata(runtime_seconds=delta)
+        delta = time.time() - t1
+        meta = RunMetadata(runtime_seconds=delta)
 
-    th.save(outs, self.run_directory.fullpath(params.uid + '.pt'))
+        th.save(outs, self.run_directory.fullpath(params.uid + '.pt'))
 
-    self.run_directory.record(params, meta, writefile=True)
+        self.run_directory.record(params, meta, writefile=True)
