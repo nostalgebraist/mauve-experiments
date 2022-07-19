@@ -29,9 +29,9 @@ class MetricsComputer:
         gr = GenerationRuns(self.run_directory.complete_runs)
         vars, _ = gr.cv_form()
         for p, v in zip(gr.param_grid, vars):
-            if (p, seed) in mc.run_directory.metrics:
+            if (p, seed) in self.run_directory.metrics:
                 print(v)
-                print(f"\t{mc.run_directory.metrics[(p, seed)]['mauve']}")
+                print(f"\t{self.run_directory.metrics[(p, seed)]['mauve']}")
 
     def do_remaining_metrics(self, seed, post_run_callback=None, **kwargs):
         for params in self.metrics_to_do(seed):
