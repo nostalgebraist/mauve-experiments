@@ -25,7 +25,7 @@ def get_device_from_arg(device_id):
         return CPU_DEVICE
 
 def get_model(model_name, tokenizer, device_id):
-    return no_init(_get_model, model_name=model_name, tokenizer=tokenizer, device_id=device_id))
+    return no_init(_get_model, model_name=model_name, tokenizer=tokenizer, device_id=device_id)
 
 def _get_model(model_name, tokenizer, device_id):
     device = get_device_from_arg(device_id)
