@@ -51,4 +51,4 @@ class MetricsComputer:
         self.run_directory.save_metrics(params, seed, metrics_d)
 
         if post_run_callback is not None:
-            post_run_callback(self.run_directory, params)
+            post_run_callback(self.run_directory, params, seed)
