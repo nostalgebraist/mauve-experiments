@@ -97,9 +97,10 @@ class GenerationRunner:
                 debug=debug
             )
 
-            params = params.replace(temperature=1)
+            params_effective = params.replace(temperature=1)
         else:
             self._model._get_logits_processor = self._orig_get_logits_processor
+            params_effective = params
 
         th.manual_seed(params.seed)
 
@@ -124,7 +125,7 @@ class GenerationRunner:
                 eos_token_id=50256,
                 pad_token_id=50256,
                 max_length=params.max_len,
-                temperature=params.temperature,
+                temperature=params_effective.temperature,
                 top_p=params.top_p,
                 top_k=params.top_k,
             )
