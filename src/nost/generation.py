@@ -73,7 +73,7 @@ class GenerationRunner:
         if self._prompt_source_file != prompt_source_file:
             segs = prompt_source_file.split('.')
 
-            ds_name = prompt_source_file.split('.')
+            ds_name = segs[0]
             split = segs[1] if len(segs) > 2 else ''
 
             self._prompt_data = load_and_tokenize_data(
@@ -81,7 +81,6 @@ class GenerationRunner:
             )
 
             self._prompt_source_file = prompt_source_file
-
 
     def _do_run(self, params: GenerationRunParams, bs: int, debug=False):
         self._set_model(params.model_name)
