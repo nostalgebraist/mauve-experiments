@@ -1,5 +1,6 @@
 import os
 from typing import Union
+from pprint import pformat
 
 import torch as th
 from tqdm.auto import tqdm, trange
@@ -29,6 +30,7 @@ class MetricsComputer:
             self.compute_metrics(params, seed=seed, post_run_callback=post_run_callback, **kwargs)
 
     def compute_metrics(self, params, seed, post_run_callback=None, **kwargs):
+        print(f"computing metrics for {pformat(params.to_dict())}")
         p_feats = self.run_directory.load_groundtruth_feats(params)
         q_feats = self.run_directory.load_feats(params)
 
