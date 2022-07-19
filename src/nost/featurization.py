@@ -27,7 +27,7 @@ def featurize_tokens(
 
         assert None not in unsorter
 
-        tokens = tokens[sorter]
+        tokens = [tokens[ix] for ix in sorter]
 
     feat = get_features_from_input(
         features=None,
