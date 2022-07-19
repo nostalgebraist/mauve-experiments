@@ -83,6 +83,26 @@ class GenerationRunner:
 
             self._prompt_source_file = prompt_source_file
 
+    def do_remaining_runs(self, bs_or_bs_map: Union[int, dict], debug=False, post_run_callback=None):
+        for params in self.runs_to_do():
+            bs = None
+
+            if isinstance(bs_or_bs_map, int):
+                bs = bs_or_bs_map
+            elif isinstance(bs_or_bs_map, dict):
+                if params.max_len in bs_or_bs_map:
+                    bs = bs_or_bs_map[params.max_len]
+                else:
+                    for val in sorted(bs_or_bs_map.keys(), reverse=True):
+                        if val < params.max_len:
+                            bs = val
+                            break
+                print(f'Using bs={bs} for L={params.max_len} )
+            else:
+                raise TypeError(type(bs_or_bs_map))
+
+            self._do_run(params, bs, debug=debug, post_run_callback=post_run_callback)
+
     def _do_run(self, params: GenerationRunParams, bs: int, debug=False, post_run_callback=None):
         self._set_model(params.model_name)
         self._set_data(params.prompt_source_file, params.prompt_len)
