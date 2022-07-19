@@ -6,7 +6,8 @@ from tqdm.auto import tqdm, trange
 from transformers import LogitsProcessorList
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunMetadata, RunDirectory
-from src.utils import get_model_and_tokenizer, load_and_tokenize_data
+from src.nost.util import load_ground_truth
+from src.utils import get_model_and_tokenizer
 
 from src.decoding_methods import BreakrunsLogitsProcessor
 
@@ -77,9 +78,7 @@ class GenerationRunner:
             ds_name = segs[0]
             split = segs[1] if len(segs) > 2 else ''
 
-            self._prompt_data = load_and_tokenize_data(
-                self._enc, self.data_dir, 1024, 10000, min_len=prompt_len, ds_name=ds_name, split=split
-            )
+            self._prompt_data = load_ground_truth(self._enc, self.data_dir, prompt_source_file, prompt_len)
 
             self._prompt_source_file = prompt_source_file
 

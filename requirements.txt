@@ -4,3 +4,4 @@ scikit-learn
 faiss-gpu==1.7.0
 tqdm
 requests
+mauve-text
