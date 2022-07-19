@@ -46,6 +46,7 @@ class GenerationRunner:
         self._prompt_source_file = None
         self._prompt_data = None
 
+    @property
     def complete_runs(self):
         return self.run_directory.complete_runs
 
