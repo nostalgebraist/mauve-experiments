@@ -8,6 +8,8 @@ from tqdm.auto import tqdm as tqdm_original
 import torch
 from transformers import AutoModel, AutoTokenizer
 
+from src.utils import no_init
+
 
 CPU_DEVICE = torch.device('cpu')
 tqdm = lambda *args, **kwargs: tqdm_original(
@@ -23,6 +25,9 @@ def get_device_from_arg(device_id):
         return CPU_DEVICE
 
 def get_model(model_name, tokenizer, device_id):
+    return no_init(_get_model(model_name, tokenizer, device_id))
+
+def _get_model(model_name, tokenizer, device_id):
     device = get_device_from_arg(device_id)
     if 'gpt2' in model_name or "bert" in model_name:
         model = AutoModel.from_pretrained(model_name, pad_token_id=tokenizer.eos_token_id).to(device)
