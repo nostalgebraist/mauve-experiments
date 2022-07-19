@@ -83,7 +83,7 @@ class GenerationRunner:
 
             self._prompt_source_file = prompt_source_file
 
-    def _do_run(self, params: GenerationRunParams, bs: int, debug=False):
+    def _do_run(self, params: GenerationRunParams, bs: int, debug=False, post_run_callback=None):
         self._set_model(params.model_name)
         self._set_data(params.prompt_source_file, params.prompt_len)
 
@@ -139,3 +139,6 @@ class GenerationRunner:
         self.run_directory.save_tokens(params, outs)
 
         self.run_directory.record(params, meta, writefile=True)
+
+        if post_run_callback is not None:
+            post_run_callback(self.run_directory, params)
