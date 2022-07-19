@@ -49,7 +49,7 @@ class GenerationRunner:
 
     @property
     def complete_runs(self):
-        return self.run_directory.complete_runs
+        return self.run_directory.complete_runs.intersection(self.runs.param_grid)
 
     def runs_to_do(self):
         return [r for r in self.runs.param_grid if r not in self.complete_runs]
