@@ -176,6 +176,15 @@ class RunDirectory:
                 except (json.JSONDecodeError, FileNotFoundError):
                     pass
 
+    def tokens_path(self, params):
+        return self.fullpath(params.uid + '.pt')
+
+    def params_path(self, params):
+        return self.fullpath(params.uid + '_params.json')
+
+    def meta_path(self, params):
+        return self.fullpath(params.uid + '_meta.json')
+
     def record(self, params, meta, writefile=True):
         self.complete_runs.add(params)
 
@@ -183,12 +192,10 @@ class RunDirectory:
             self.meta[params] = meta
 
         if writefile:
-            params_path = self.fullpath(params.uid + '_params.json')
-            params.to_json_file(params_path)
+            params.to_json_file(self.params_path(params))
 
             if meta is not None:
-                meta_path = self.fullpath(params.uid + '_meta.json')
-                meta.to_json_file(meta_path)
+                meta.to_json_file(self.meta_path(params))
 
     def remove(self, params, deletefiles=True):
         if deletefiles:
@@ -199,9 +206,6 @@ class RunDirectory:
         del self.meta[params]
         del self.params_paths[params]
         del self.meta_paths[params]
-
-    def tokens_path(self, params):
-        return self.fullpath(params.uid + '.pt')
 
     def save_tokens(self, params, tokens):
         import torch as th
