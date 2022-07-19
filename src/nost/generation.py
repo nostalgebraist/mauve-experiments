@@ -97,7 +97,7 @@ class GenerationRunner:
                         if val < params.max_len:
                             bs = val
                             break
-                print(f'Using bs={bs} for L={params.max_len} )
+                print(f'Using bs={bs} for L={params.max_len}')
             else:
                 raise TypeError(type(bs_or_bs_map))
 
