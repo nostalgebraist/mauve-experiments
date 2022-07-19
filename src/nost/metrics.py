@@ -18,7 +18,7 @@ class MetricsComputer:
         self.run_directory = run_directory
 
     def complete_metrics(self, seed):
-        cm = {uid for uid, seed_ in self.run_directory.complete_metrics if seed_ == seed}
+        cm = {uid for uid, seed_ in self.run_directory.metrics if seed_ == seed}
         return cm.intersection(self.run_directory.complete_runs)
 
     def metrics_to_do(self, seed):
