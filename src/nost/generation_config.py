@@ -149,10 +149,16 @@ class RunDirectory:
         self.params_paths = {}
         self.meta_paths = {}
 
+        self.feat_path = os.path.join(self.path, 'feats')
+        self.complete_feats = set()
+
         self.scan()
 
     def fullpath(self, path):
         return os.path.join(self.path, path)
+
+    def fullpath_feats(self, path):
+        return os.path.join(self.feats_path, path)
 
     def scan(self):
         os.makedirs(self.path, exist_ok=True)
@@ -176,6 +182,18 @@ class RunDirectory:
                 except (json.JSONDecodeError, FileNotFoundError):
                     pass
 
+        self.scan_feats()
+
+    def scan_feats(self):
+        os.makedirs(self.feats_path, exist_ok=True)
+
+        uids_to_params = {params.uid: params for params in self.complete_runs}
+
+        for fp in os.listdir(self.feats_path):
+            uid = fp.split("_")[0]
+            if uid in uids_to_params:
+                self.complete_feats.add(uids_to_params[uid])
+
     def tokens_path(self, params):
         return self.fullpath(params.uid + '.pt')
 
@@ -184,6 +202,12 @@ class RunDirectory:
 
     def meta_path(self, params):
         return self.fullpath(params.uid + '_meta.json')
+
+    def feats_path(self, params):
+        return self.fullpath_feats(params.uid + '_feat.pt')
+
+    def ground_truth_feats_path(self, params):
+        return self.fullpath_feats(params.prompt_source_file + '_feat.pt')
 
     def record(self, params, meta, writefile=True):
         self.complete_runs.add(params)
@@ -207,6 +231,9 @@ class RunDirectory:
         del self.params_paths[params]
         del self.meta_paths[params]
 
+    def record_feats(self, params):
+        self.complete_feats.add(params)
+
     def save_tokens(self, params, tokens):
         import torch as th
         th.save(tokens, self.tokens_path(params))
@@ -214,3 +241,15 @@ class RunDirectory:
     def load_tokens(self, params):
         import torch as th
         return th.load(self.tokens_path(params))
+
+    def save_feats(self, params, feats):
+        import torch as th
+        th.save(feats, self.feats_path(params))
+
+    def save_groundtruth_feats(self, params, feats):
+        import torch as th
+        th.save(feats, self.ground_truth_feats_path(params))
+
+    def load_feats(self, params):
+        import torch as th
+        return th.load(self.feats_path(params))
