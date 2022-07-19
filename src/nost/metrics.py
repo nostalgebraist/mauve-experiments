@@ -12,10 +12,6 @@ class MetricsComputer:
     def __init__(
         self, run_directory: Union[str, RunDirectory],
     ):
-        self.device_id = device_id
-        self.data_dir = data_dir
-        self.featurize_model_name = featurize_model_name
-
         if isinstance(run_directory, str):
             run_directory = RunDirectory(path=run_directory)
 
