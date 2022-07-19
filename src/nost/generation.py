@@ -97,7 +97,7 @@ class GenerationRunner:
                 debug=debug
             )
 
-            params_effective = params.replace(temperature=1)
+            params_effective = params.replace(temperature=1.0)
         else:
             self._model._get_logits_processor = self._orig_get_logits_processor
             params_effective = params
