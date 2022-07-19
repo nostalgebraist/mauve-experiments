@@ -9,10 +9,29 @@ from src.nost.compute_mauve_from_package import get_features_from_input
 from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 
 
-def featurize_tokens(tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0, name=''):
-    return get_features_from_input(
+def featurize_tokens(
+    tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0, name='',
+    minimize_padding=True,
+):
+    tokens_ = tokens[:max_examples]
+    tokens = tokens_
+
+    if minimize_padding:
+        token_length = [t.shape[1] for t in tokens]
+
+        sorter = sorted(list(range(len(token_length))), key=lambda i: token_length[i])
+
+        unsorter = [None] * len(sorter)
+        for i, ix in enumerate(sorter):
+            unsorter[ix] = i
+
+        assert None not in unsorter
+
+        tokens = tokens[:, sorter]
+
+    feat = get_features_from_input(
         features=None,
-        tokenized_texts=tokens[:max_examples],
+        tokenized_texts=tokens,
         texts=None,
         featurize_model_name=featurize_model_name,
         max_len=None,  # unused
@@ -21,6 +40,11 @@ def featurize_tokens(tokens, max_examples, batch_size, featurize_model_name='gpt
         verbose=True,
         device_id=0
     )
+
+    if minimize_padding:
+        feat = feat[unsorter, :]
+
+    return feat
 
 
 class Featurizer:
@@ -45,23 +69,27 @@ class Featurizer:
     def feats_to_do(self):
         return [r for r in self.runs.param_grid if r not in self.complete_feats]
 
-    def do_remaining_feats(self, bs_or_bs_map: Union[int, dict], post_run_callback=None):
+    def do_remaining_feats(self, bs_or_bs_map: Union[int, dict], post_run_callback=None, minimize_padding=True):
         for params in self.feats_to_do():
             bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
-            self.featurize_run(params, bs, post_run_callback=post_run_callback)
+            self.featurize_run(params, bs, post_run_callback=post_run_callback, minimize_padding=minimize_padding)
 
-    def featurize_run(self, params: GenerationRunParams, batch_size: int, post_run_callback=None, post_run_callback_groundtruth=None):
-        self.featurize_ground_truth(params, batch_size, post_run_callback_groundtruth)  # skips internally if already done
+    def featurize_run(
+        self, params: GenerationRunParams, batch_size: int, post_run_callback=None, post_run_callback_groundtruth=None,
+        minimize_padding=True
+    ):
+        self.featurize_ground_truth(params, batch_size, post_run_callback_groundtruth, minimize_padding)  # skips internally if already done
 
         tokens = self.run_directory.load_tokens(params)
 
-        feat = featurize_tokens(
+        feats = featurize_tokens(
             tokens,
             max_examples=params.max_num_generations,
             batch_size=batch_size,
             featurize_model_name=self.featurize_model_name,
             device_id=self.device_id,
             name=params.uid,
+            minimize_padding=minimize_padding,
         )
 
         self.run_directory.save_feats(params, feats)
@@ -70,7 +98,7 @@ class Featurizer:
         if post_run_callback is not None:
             post_run_callback(self.run_directory, params)
 
-    def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int, post_run_callback=None):
+    def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int, post_run_callback=None, minimize_padding=True):
         if os.path.exists(self.run_directory.ground_truth_feats_path(params)):
             return
 
@@ -84,13 +112,14 @@ class Featurizer:
         tokens = [seq[:, :params.max_len] for seq in tokens]
         print(f"max token len: {max(seq.shape[1] for seq in tokens)}")
 
-        feat = featurize_tokens(
+        feats = featurize_tokens(
             tokens,
             max_examples=params.max_num_generations,
             batch_size=batch_size,
             featurize_model_name=self.featurize_model_name,
             device_id=self.device_id,
             name=params.prompt_source_file,
+            minimize_padding=minimize_padding,
         )
 
         self.run_directory.save_groundtruth_feats(params, feats)
