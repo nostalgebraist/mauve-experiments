@@ -122,6 +122,10 @@ class GenerationRunner:
             offset_next = min(have+bs, params.max_num_generations)
             b = th.cat([t[:, :params.prompt_len] for t in prompt_data[have:offset_next]]).to(self.device)
 
+            typical_p = None
+            if 0 < params.typical_decoding_tau < 1:
+                typical_p = params.typical_decoding_tau
+
             out = self._model.generate(
                 b,
                 do_sample=True,
@@ -132,6 +136,7 @@ class GenerationRunner:
                 temperature=params_effective.temperature,
                 top_p=params.top_p,
                 top_k=params.top_k,
+                typical_p=typical_p,
             )
 
             outs.extend([s[s != 50256] for s in out.cpu()])
