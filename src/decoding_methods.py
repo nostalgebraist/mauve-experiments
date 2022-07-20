@@ -95,7 +95,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
         # Estimate s
         s = [self.estimate_s(p) for p in prob_original]
         # Compute k
-        k = [self.compute_k(se,ms)+1 for se, ms in zip(s, self.max_surprise)
+        k = [self.compute_k(se,ms)+1 for se, ms in zip(s, self.max_surprise)]
 
         sorted_logits = torch.cat([sl[0:kk] for sl, kk in zip(sorted_logits, k)]
 
