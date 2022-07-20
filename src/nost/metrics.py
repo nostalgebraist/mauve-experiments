@@ -65,7 +65,7 @@ class MetricsComputer:
         p_feats = self.run_directory.load_groundtruth_feats(params)
         q_feats = self.run_directory.load_feats(params)
 
-        metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, **kwargs)
+        metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, verbose=verbose, **kwargs)
 
         vprint(f"mauve = {metrics_obj.mauve}")
 
