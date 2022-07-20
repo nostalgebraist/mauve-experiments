@@ -1,3 +1,5 @@
+import math
+
 import torch
 from transformers import LogitsProcessor, LogitsWarper
 
@@ -9,12 +11,19 @@ class BreakrunsLogitsProcessor(LogitsProcessor):
                  debug=True,
                  tokenizer=None
                  ):
-        self.breakruns_counter = None
-        self.last_logits = None
         self.base_temperature = base_temperature
         self.tau = tau
         self.debug = debug
         self.tokenizer = tokenizer
+
+        self.breakruns_counter = None
+        self.last_logits = None
+        self.last_length = None
+
+    def _reset(self):
+        self._dprint("BREAKRUNS: _reset")
+        self.breakruns_counter = None
+        self.last_logits = None
 
     def _dprint(self, msg, fillers={}, **kwargs):
         if self.debug:
@@ -25,6 +34,11 @@ class BreakrunsLogitsProcessor(LogitsProcessor):
         if seq_length < 1:
             self._dprint("BREAKRUNS: empty sequence, no op")
             return scores
+
+        if self.last_length is None or self.last_length > input_ids.shape[1]:
+            # new sequence
+            self._reset()
+        self.last_length = input_ids.shape[1]
 
         if self.breakruns_counter is None:
             self._dprint("BREAKRUNS: init counter")
@@ -52,6 +66,67 @@ class BreakrunsLogitsProcessor(LogitsProcessor):
         self.last_logits = scores
 
         return scores / eff_temperature[:, None].expand_as(scores)
+
+
+class MirostatLogitsProcessor(LogitsProcessor):
+    def __init__(self, tau, n=50000, learning_rate=1):
+        self.tau = tau
+        self.max_surprise = 2*self.tau
+        self.n=50000
+        self.learning_rate = learning_rate
+
+        self.last_length = None
+
+    def _reset(self):
+        self.max_surprise = 2*self.tau
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        logits = scores
+        context = input_ids
+
+        if self.last_length is None or self.last_length > input_ids.shape[1]:
+            # new sequence
+            self._reset()
+        self.last_length = input_ids.shape[1]
+
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        prob_original = torch.softmax(sorted_logits, dim=-1).tolist()
+
+        # Estimate s
+        s = self.estimate_s(prob_original)
+        # Compute k
+        k = self.compute_k(s,self.max_surprise)+1
+
+        sorted_logits = sorted_logits[0:k]
+        sorted_indices = sorted_indices[0:k]
+
+        prob_topk = torch.softmax(sorted_logits, dim = 0)
+        prev_i = torch.multinomial(prob_topk, num_samples=1, replacement=True)
+        index_surprise = math.log2(1/prob_original[prev_i])
+
+        # adjust max_surprise
+        self.error_surprise = index_surprise - self.tau
+        self.max_surprise -= self.learning_rate*error_surprise
+
+    @staticmethod
+    def estimate_s(prob):
+        result = 0
+        num = 0
+        den = 0
+        for i in range(100):
+            b = prob[i]/prob[i+1]
+            t = (i+2)/(i+1)
+            num += math.log(b)*math.log(t)
+            den += math.log(t)**2
+        return num/den
+
+    def compute_k(s):
+        eps = s-1
+        k = ((eps*(2**(self.tau)))/(1-self.n**(-eps)))**(1/s)
+        k = round(k)
+        return k
+
+
 
 
 # taken from https://github.com/cimeister/typical-sampling/blob/typical-pr/src/transformers/generation_logits_process.py
