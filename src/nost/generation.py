@@ -10,7 +10,7 @@ from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunM
 from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 from src.utils import get_model_and_tokenizer
 
-from src.decoding_methods import BreakrunsLogitsProcessor
+from src.decoding_methods import BreakrunsLogitsProcessor, MirostatLogitsProcessor
 
 
 def make_override_get_breakruns(base_temperature, tau, tokenizer=None, debug=False,
@@ -28,6 +28,20 @@ def make_override_get_breakruns(base_temperature, tau, tokenizer=None, debug=Fal
         ]
         return LogitsProcessorList(processors)
     return _override_get_breakruns
+
+
+def make_override_get_mirostat(tau, n=50000, learning_rate=1):
+    def _override_get_mirostat(*args, **kwargs) -> LogitsProcessorList:
+        if debug:
+            print('logits processor call')
+        processors = [
+            MirostatLogitsProcessor(
+                tau=tau, n=n, learning_rate=learning_rate,
+            )
+        ]
+        return LogitsProcessorList(processors)
+    return _override_get_mirostat
+
 
 
 class GenerationRunner:
@@ -95,6 +109,7 @@ class GenerationRunner:
         self._set_data(params.prompt_source_file, params.prompt_len)
 
         using_breakruns = params.breakruns_tau > 0
+        using_mirostat = params.mirostat_tau is not None and params.mirostat_tau > 0
 
         if using_breakruns:
             self._model._get_logits_processor = make_override_get_breakruns(
@@ -105,6 +120,12 @@ class GenerationRunner:
             )
 
             params_effective = params.replace(temperature=1.0)
+        elif using_mirostat:
+            self._model._get_logits_processor = make_override_get_mirostat(
+                tau=params.mirostat_tau,
+            )
+
+            params_effective = params
         else:
             self._model._get_logits_processor = self._orig_get_logits_processor
             params_effective = params
