@@ -1,5 +1,6 @@
 import gc, time
 from typing import Union
+from pprint import pformat
 
 import torch as th
 from tqdm.auto import tqdm, trange
@@ -88,6 +89,8 @@ class GenerationRunner:
             self._do_run(params, bs, debug=debug, post_run_callback=post_run_callback)
 
     def _do_run(self, params: GenerationRunParams, bs: int, debug=False, post_run_callback=None):
+        print(f"generating for {pformat(params.to_dict())}")
+
         self._set_model(params.model_name)
         self._set_data(params.prompt_source_file, params.prompt_len)
 

@@ -1,5 +1,6 @@
 import os
 from typing import Union, Optional
+from pprint import pformat
 
 import torch as th
 from tqdm.auto import tqdm, trange
@@ -87,6 +88,8 @@ class Featurizer:
     ):
         self.featurize_ground_truth(params, batch_size, post_run_callback_groundtruth, minimize_padding)  # skips internally if already done
 
+        print(f"computing features for {pformat(params.to_dict())}")
+
         tokens = self.run_directory.load_tokens(params)
 
         feats = featurize_tokens(
@@ -108,6 +111,8 @@ class Featurizer:
     def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int, post_run_callback=None, minimize_padding=True):
         if os.path.exists(self.run_directory.ground_truth_feats_path(params)):
             return
+
+        print(f"computing features for {params.prompt_source_file}")
 
         tokens = load_ground_truth(
             enc=None,  # should be pre-tokenized

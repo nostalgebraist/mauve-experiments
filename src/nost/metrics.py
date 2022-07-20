@@ -40,6 +40,7 @@ class MetricsComputer:
 
     def compute_metrics(self, params, seed, post_run_callback=None, **kwargs):
         print(f"computing metrics for {pformat(params.to_dict())}")
+        
         p_feats = self.run_directory.load_groundtruth_feats(params)
         q_feats = self.run_directory.load_feats(params)
 
