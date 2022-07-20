@@ -91,7 +91,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
         self.last_length = input_ids.shape[1]
 
         sorted_logits, _ = torch.sort(logits, descending=True)
-        prob_original = torch.softmax(sorted_logits, dim=-1).numpy()
+        prob_original = torch.softmax(sorted_logits, dim=-1).cpu().numpy()
 
         # Estimate s
         s = [self.estimate_s(p) for p in prob_original]
