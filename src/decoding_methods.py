@@ -97,7 +97,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
         # Compute k
         k = [self.compute_k(se,ms)+1 for se, ms in zip(s, self.max_surprise)]
 
-        sorted_logits = torch.cat([sl[0:kk] for sl, kk in zip(sorted_logits, k)]
+        sorted_logits = torch.cat([sl[0:kk] for sl, kk in zip(sorted_logits, k)])
 
         prob_topk = torch.softmax(sorted_logits, dim = 0)
         prev_i = torch.multinomial(prob_topk, num_samples=1, replacement=True)
