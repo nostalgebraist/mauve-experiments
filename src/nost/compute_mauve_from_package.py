@@ -39,6 +39,7 @@ def compute_mauve(
         featurize_model_name='gpt2-large', device_id=-1, max_text_length=1024,
         divergence_curve_discretization_size=25, mauve_scaling_factor=5,
         verbose=False, seed=25, batch_size=1, use_float64=False,
+        gpu=False
 ):
 
     """
@@ -110,7 +111,8 @@ def compute_mauve(
                          explained_variance=kmeans_explained_var,
                          num_redo=kmeans_num_redo,
                          max_iter=kmeans_max_iter,
-                         seed=seed, verbose=verbose)
+                         seed=seed, verbose=verbose,
+                         gpu=gpu)
     t2 = time.time()
     if verbose:
         print('total discretization time:', round(t2-t1, 2), 'seconds')
