@@ -39,7 +39,7 @@ def compute_mauve(
         featurize_model_name='gpt2-large', device_id=-1, max_text_length=1024,
         divergence_curve_discretization_size=25, mauve_scaling_factor=5,
         verbose=False, seed=25, batch_size=1, use_float64=False,
-        gpu=False
+        gpus=0,
 ):
 
     """
@@ -112,7 +112,7 @@ def compute_mauve(
                          num_redo=kmeans_num_redo,
                          max_iter=kmeans_max_iter,
                          seed=seed, verbose=verbose,
-                         gpu=gpu)
+                         gpus=gpus,)
     t2 = time.time()
     if verbose:
         print('total discretization time:', round(t2-t1, 2), 'seconds')
@@ -189,7 +189,7 @@ def cluster_feats(p, q, num_clusters,
                   explained_variance=0.9,
                   num_redo=5, max_iter=500,
                   seed=0, verbose=False,
-                  gpu=False,):
+                  gpus=0,):
     assert 0 < explained_variance < 1
     if verbose:
         print(f'seed = {seed}')
@@ -216,7 +216,7 @@ def cluster_feats(p, q, num_clusters,
     t1 = time.time()
     kmeans = faiss.Kmeans(data1.shape[1], num_clusters, niter=max_iter,
                           verbose=verbose, nredo=num_redo, update_index=True,
-                          seed=seed+2, gpu=gpu)
+                          seed=seed+2, gpus=gpus)
     kmeans.train(data1)
     _, labels = kmeans.index.search(data1, 1)
     labels = labels.reshape(-1)
