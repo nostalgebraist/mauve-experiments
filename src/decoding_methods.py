@@ -121,7 +121,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
             den += math.log(t)**2
         return num/den
 
-    def compute_k(s, tau):
+    def compute_k(self, s, tau):
         eps = s-1
         k = ((eps*(2**(tau)))/(1-self.n**(-eps)))**(1/s)
         k = round(k)
