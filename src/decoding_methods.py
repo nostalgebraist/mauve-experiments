@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import torch
 from transformers import LogitsProcessor, LogitsWarper
 
@@ -77,8 +78,8 @@ class MirostatLogitsProcessor(LogitsProcessor):
 
         self.last_length = None
 
-    def _reset(self):
-        self.max_surprise = 2*self.tau
+    def _reset(self, bs):
+        self.max_surprise = np.array([2*self.tau] * bs)
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
         logits = scores
@@ -86,11 +87,11 @@ class MirostatLogitsProcessor(LogitsProcessor):
 
         if self.last_length is None or self.last_length > input_ids.shape[1]:
             # new sequence
-            self._reset()
+            self._reset(bs=input_ids.shape[0])
         self.last_length = input_ids.shape[1]
 
         sorted_logits, _ = torch.sort(logits, descending=True)
-        prob_original = torch.softmax(sorted_logits, dim=-1).tolist()
+        prob_original = torch.softmax(sorted_logits, dim=-1).numpy()
 
         # Estimate s
         s = [self.estimate_s(p) for p in prob_original]
@@ -101,7 +102,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
 
         prob_topk = torch.softmax(sorted_logits, dim = 0)
         prev_i = torch.multinomial(prob_topk, num_samples=1, replacement=True)
-        index_surprise = math.log2(1/prob_original[prev_i])
+        index_surprise = np.log2(1/prob_original[prev_i])
 
         # adjust max_surprise
         self.error_surprise = index_surprise - self.tau
