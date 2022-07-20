@@ -30,7 +30,7 @@ def make_override_get_breakruns(base_temperature, tau, tokenizer=None, debug=Fal
     return _override_get_breakruns
 
 
-def make_override_get_mirostat(tau, n=50000, learning_rate=1):
+def make_override_get_mirostat(tau, n=50000, learning_rate=1, debug=False):
     def _override_get_mirostat(*args, **kwargs) -> LogitsProcessorList:
         if debug:
             print('logits processor call')
