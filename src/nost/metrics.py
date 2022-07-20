@@ -40,11 +40,13 @@ class MetricsComputer:
 
     def compute_metrics(self, params, seed, post_run_callback=None, **kwargs):
         print(f"computing metrics for {pformat(params.to_dict())}")
-        
+
         p_feats = self.run_directory.load_groundtruth_feats(params)
         q_feats = self.run_directory.load_feats(params)
 
         metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, **kwargs)
+
+        print(f"mauve = {metrics_obj.mauve}")
 
         def _handle(obj):
             if isinstance(obj, list) or isinstance(obj, float):
