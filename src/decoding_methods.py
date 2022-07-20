@@ -89,16 +89,15 @@ class MirostatLogitsProcessor(LogitsProcessor):
             self._reset()
         self.last_length = input_ids.shape[1]
 
-        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        sorted_logits, _ = torch.sort(logits, descending=True)
         prob_original = torch.softmax(sorted_logits, dim=-1).tolist()
 
         # Estimate s
-        s = self.estimate_s(prob_original)
+        s = [self.estimate_s(p) for p in prob_original]
         # Compute k
-        k = self.compute_k(s,self.max_surprise)+1
+        k = [self.compute_k(se,ms)+1 for se, ms in zip(s, self.max_surprise)
 
-        sorted_logits = sorted_logits[0:k]
-        sorted_indices = sorted_indices[0:k]
+        sorted_logits = torch.cat([sl[0:kk] for sl, kk in zip(sorted_logits, k)]
 
         prob_topk = torch.softmax(sorted_logits, dim = 0)
         prev_i = torch.multinomial(prob_topk, num_samples=1, replacement=True)
@@ -107,6 +106,7 @@ class MirostatLogitsProcessor(LogitsProcessor):
         # adjust max_surprise
         self.error_surprise = index_surprise - self.tau
         self.max_surprise -= self.learning_rate*error_surprise
+        self.max_surprise = self.max_surprise - error_surprise
 
     @staticmethod
     def estimate_s(prob):
