@@ -229,17 +229,28 @@ class RunDirectory:
         return collected
 
     def collect_metrics_over_seeds(self):
+        collected = defaultdict(list)
+
+        for params, seed in self.metrics.keys():
+            collected[params].append(seed)
+
+        return collected
+
+    def collect_metrics_over_all(self):
         collected_runs = self.collect_runs_over_seeds()
+        collected_metrics = self.collect_metrics_over_seeds()
 
         results = []
         for params, runs in collected_runs.items():
             for true_params in runs:
-                if true_params not in self.metrics:
+                if true_params not in collected_metrics:
                     continue
-                row = {}
-                row.update(true_params.to_dict())
-                row.update(self.metrics[true_params])
-                results.append(row)
+                for metrics_seed in collected_metrics[true_params]:
+                    row = {}
+                    row.update(true_params.to_dict())
+                    row['metrics_seed'] = metrics_seed
+                    row.update(self.metrics[(true_params, metrics_seed)])
+                    results.append(row)
         return results
 
     def tokens_path(self, params):
