@@ -67,6 +67,7 @@ class MetricsComputer:
 
         metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, verbose=verbose, **kwargs)
 
+        vprint(f"done computing metrics for {pformat(params.to_dict())}")
         vprint(f"mauve = {metrics_obj.mauve}")
 
         if trialrun:
