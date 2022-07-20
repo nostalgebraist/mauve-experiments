@@ -35,7 +35,7 @@ class MetricsComputer:
                 print(v)
                 print(f"\t{self.run_directory.metrics[(p, seed)]['mauve']}")
 
-    def do_remaining_metrics(self, seed, post_run_callback=None, verbose=True, trialrun=False, n_concurrent=1, **kwargs):
+    def do_remaining_metrics(self, seed, post_run_callback=None, verbose=True, trialrun=False, n_concurrent=1, gpu=False, **kwargs):
         if n_concurrent > 1:
             to_do = list(self.metrics_to_do(seed))
             handler = partial(
@@ -52,10 +52,11 @@ class MetricsComputer:
                     post_run_callback=post_run_callback,
                     verbose=verbose,
                     trialrun=trialrun,
+                    gpu=gpu,
                     **kwargs
                 )
 
-    def compute_metrics(self, params, seed, post_run_callback=None, verbose=True, trialrun=False, **kwargs):
+    def compute_metrics(self, params, seed, post_run_callback=None, verbose=True, trialrun=False, gpu=False, **kwargs):
         def vprint(*args, **kwargs):
             if verbose:
                 print(*args, **kwargs)
@@ -65,7 +66,7 @@ class MetricsComputer:
         p_feats = self.run_directory.load_groundtruth_feats(params)
         q_feats = self.run_directory.load_feats(params)
 
-        metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, verbose=verbose, **kwargs)
+        metrics_obj = compute_mauve(p_features=p_feats, q_features=q_feats, seed=seed, verbose=verbose, gpu=gpu, **kwargs)
 
         vprint(f"done computing metrics for {pformat(params.to_dict())}")
         vprint(f"mauve = {metrics_obj.mauve}")

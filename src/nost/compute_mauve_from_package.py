@@ -186,7 +186,8 @@ def cluster_feats(p, q, num_clusters,
                   pca_max_data=-1,
                   explained_variance=0.9,
                   num_redo=5, max_iter=500,
-                  seed=0, verbose=False):
+                  seed=0, verbose=False,
+                  gpu=False,):
     assert 0 < explained_variance < 1
     if verbose:
         print(f'seed = {seed}')
@@ -213,7 +214,7 @@ def cluster_feats(p, q, num_clusters,
     t1 = time.time()
     kmeans = faiss.Kmeans(data1.shape[1], num_clusters, niter=max_iter,
                           verbose=verbose, nredo=num_redo, update_index=True,
-                          seed=seed+2)
+                          seed=seed+2, gpu=gpu)
     kmeans.train(data1)
     _, labels = kmeans.index.search(data1, 1)
     labels = labels.reshape(-1)
