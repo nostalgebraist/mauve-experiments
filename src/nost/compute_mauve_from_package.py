@@ -39,7 +39,7 @@ def compute_mauve(
         featurize_model_name='gpt2-large', device_id=-1, max_text_length=1024,
         divergence_curve_discretization_size=25, mauve_scaling_factor=5,
         verbose=False, seed=25, batch_size=1, use_float64=False,
-        gpus=0,
+        gpus=0, return_labels=False,
 ):
 
     """
@@ -104,15 +104,18 @@ def compute_mauve(
 
     # Acutal binning
     t1 = time.time()
-    p, q = cluster_feats(p_features, q_features,
-                         num_clusters=num_buckets,
-                         norm='l2', whiten=False,
-                         pca_max_data=pca_max_data,
-                         explained_variance=kmeans_explained_var,
-                         num_redo=kmeans_num_redo,
-                         max_iter=kmeans_max_iter,
-                         seed=seed, verbose=verbose,
-                         gpus=gpus,)
+    p, q, p_labels, q_labels = cluster_feats(
+        p_features, q_features,
+        num_clusters=num_buckets,
+        norm='l2', whiten=False,
+        pca_max_data=pca_max_data,
+        explained_variance=kmeans_explained_var,
+        num_redo=kmeans_num_redo,
+        max_iter=kmeans_max_iter,
+        seed=seed, verbose=verbose,
+        gpus=gpus,
+    )
+
     t2 = time.time()
     if verbose:
         print('total discretization time:', round(t2-t1, 2), 'seconds')
@@ -128,11 +131,17 @@ def compute_mauve(
         compute_area_under_curve(y[idxs2], x[idxs2])
     )
     fi_score = get_fronter_integral(p, q)
+
+    extras = {}
+    if return_labels:
+        extras.update(dict(p_labels=p_labels, q_labels=q_labels))
+
     to_return = SimpleNamespace(
         p_hist=p, q_hist=q, divergence_curve=divergence_curve,
         mauve=mauve_score,
         frontier_integral=fi_score,
         num_buckets=num_buckets,
+        **extras
     )
     return to_return
 
@@ -233,7 +242,7 @@ def cluster_feats(p, q, num_clusters,
                            range=[0, num_clusters], density=True)[0]
     p_bins = np.histogram(p_labels, bins=num_clusters,
                           range=[0, num_clusters], density=True)[0]
-    return p_bins / p_bins.sum(), q_bins / q_bins.sum()
+    return p_bins / p_bins.sum(), q_bins / q_bins.sum(), p_labels, q_labels
 
 
 def kl_multinomial(p, q):
