@@ -35,16 +35,33 @@ class MetricsComputer:
                 print(v)
                 print(f"\t{self.run_directory.metrics[(p, seed)]['mauve']}")
 
-    def do_remaining_metrics(self, seed, post_run_callback=None, verbose=True, trialrun=False, n_concurrent=1, gpus=0, **kwargs):
+    def do_remaining_metrics(
+        self,
+        seed,
+        post_run_callback=None,
+        verbose=True,
+        trialrun=False,
+        n_concurrent=1,
+        gpus=0,
+        filters=None,
+        **kwargs
+    ):
+        to_do = self.metrics_to_do(seed)
+        if filters is not None:
+            n_before = len(to_do)
+            for k in filters:
+                to_do = {params for params in to_do if getattr(params, k) == filters[k]}
+            n_after = len(to_do)
+            print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
         if n_concurrent > 1:
-            to_do = list(self.metrics_to_do(seed))
+            to_do = list(to_do)
             handler = partial(
                 self.compute_metrics, seed=seed, post_run_callback=post_run_callback, verbose=verbose,
                 trialrun=trialrun, **kwargs
             )
             process_map(handler, to_do, max_workers=n_concurrent)
         else:
-            for params in self.metrics_to_do(seed):
+            for params in to_do:
                 self.summarize_metrics(seed)
                 self.compute_metrics(
                     params,
