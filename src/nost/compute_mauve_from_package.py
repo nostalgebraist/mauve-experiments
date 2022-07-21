@@ -216,7 +216,9 @@ def cluster_feats(p, q, num_clusters,
     t1 = time.time()
     kmeans = faiss.Kmeans(data1.shape[1], num_clusters, niter=max_iter,
                           verbose=verbose, nredo=num_redo, update_index=True,
-                          seed=seed+2, gpus=gpus)
+                          seed=seed+2,
+                          # gpus=gpus,
+                          )
     kmeans.train(data1)
     _, labels = kmeans.index.search(data1, 1)
     labels = labels.reshape(-1)
