@@ -45,10 +45,14 @@ def make_override_get_mirostat(tau, n=50000, learning_rate=1, debug=False):
 
 
 class GenerationRunner:
-    def __init__(self, run_directory: Union[str, RunDirectory], runs: GenerationRuns, device='cuda:0', data_dir='data'):
+    def __init__(
+        self, run_directory: Union[str, RunDirectory], runs: GenerationRuns, device='cuda:0', data_dir='data',
+        model_after_load_hook=None,
+    ):
         self.runs = runs
         self.device = device
         self.data_dir = data_dir
+        self.model_after_load_hook = model_after_load_hook
 
         if isinstance(run_directory, str):
             run_directory = RunDirectory(path=run_directory)
@@ -80,7 +84,7 @@ class GenerationRunner:
             self._model = None
             self.cleanup()
 
-            self._model, self._enc = get_model_and_tokenizer(model_name, self.device)
+            self._model, self._enc = get_model_and_tokenizer(model_name, self.device, self.model_after_load_hook)
             self._model.requires_grad_(False)
 
             self._orig_get_logits_processor = self._model._get_logits_processor
