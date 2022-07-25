@@ -29,7 +29,10 @@ class MetricsComputer:
         if filters is not None:
             n_before = len(to_do)
             for k in filters:
-                to_do = {params for params in to_do if getattr(params, k) == filters[k]}
+                rel_map = {'==': '__eq__', '!=': '__neq__', '<': '__lt__', '>': '__gt__'}
+                rel, val = filters[k]
+                rel = rel_map[rel]
+                to_do = {params for params in to_do if getattr(getattr(params, k), rel)(val)}
             n_after = len(to_do)
             print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
         return to_do
