@@ -177,11 +177,11 @@ def no_init(loading_code, **kwargs):
     return result
 
 
-def get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE):
-    return no_init(_get_model_and_tokenizer, model_name=model_name, device=device)
+def get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE, model_after_load_hook=None):
+    return no_init(_get_model_and_tokenizer, model_name=model_name, device=device, model_after_load_hook=model_after_load_hook)
 
 
-def _get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE):
+def _get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE, model_after_load_hook=None):
     if 'gpt3' in model_name: # For GPT-3 evals, use GPT-2 large
         model_name = 'gpt2-large'
     if 'gpt2' in model_name:
@@ -193,6 +193,8 @@ def _get_model_and_tokenizer(model_name='gpt2', device=CPU_DEVICE):
         model = RobertaModel.from_pretrained(model_name)
     else:
         raise ValueError(f'Unknown model: {model_name}')
+    if model_after_load_hook is not None:
+        model = model_after_load_hook(model)
     return model, tokenizer
 
 
