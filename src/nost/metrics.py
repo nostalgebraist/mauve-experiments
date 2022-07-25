@@ -29,7 +29,7 @@ class MetricsComputer:
         if filters is not None:
             n_before = len(to_do)
             for k in filters:
-                rel_map = {'==': '__eq__', '!=': '__neq__', '<': '__lt__', '>': '__gt__'}
+                rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
                 rel, val = filters[k]
                 rel = rel_map[rel]
                 to_do = {params for params in to_do if getattr(getattr(params, k), rel)(val)}
