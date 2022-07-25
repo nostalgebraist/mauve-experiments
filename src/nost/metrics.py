@@ -66,7 +66,7 @@ class MetricsComputer:
             process_map(handler, to_do, max_workers=n_concurrent)
         else:
             for params in to_do:
-                self.summarize_metrics(seed)
+                # self.summarize_metrics(seed)
                 self.compute_metrics(
                     params,
                     seed=seed,
