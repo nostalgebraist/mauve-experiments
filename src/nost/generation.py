@@ -168,6 +168,8 @@ class GenerationRunner:
             )
 
             outs.extend([s[s != 50256] for s in out.cpu()])
+            if debug and i == 0:
+                print([self._enc.decode(seq) for seq in outs])
             have = len(outs)
 
         delta = time.time() - t1
