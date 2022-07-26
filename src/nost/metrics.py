@@ -8,6 +8,7 @@ from tqdm.contrib.concurrent import process_map
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunDirectory
 from src.nost.compute_mauve_from_package import compute_mauve
+from src.nost.util import apply_filters
 
 
 class MetricsComputer:
@@ -27,11 +28,12 @@ class MetricsComputer:
         to_do = self.run_directory.complete_feats.difference(self.complete_metrics(seed))
         if filters is not None:
             n_before = len(to_do)
-            for k in filters:
-                rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
-                rel, val = filters[k]
-                rel = rel_map[rel]
-                to_do = {params for params in to_do if getattr(getattr(params, k), rel)(val)}
+            to_do = apply_filters(to_do)
+            # for k in filters:
+            #     rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
+            #     rel, val = filters[k]
+            #     rel = rel_map[rel]
+            #     to_do = {params for params in to_do if getattr(getattr(params, k), rel)(val)}
             n_after = len(to_do)
             print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
         return to_do

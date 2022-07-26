@@ -7,7 +7,7 @@ from tqdm.auto import tqdm, trange
 
 from src.nost.generation_config import GenerationRunParams, GenerationRuns, RunDirectory
 from src.nost.compute_mauve_from_package import get_features_from_input
-from src.nost.util import load_ground_truth, handle_bs_or_bs_map
+from src.nost.util import load_ground_truth, handle_bs_or_bs_map, apply_filters
 
 
 def featurize_tokens(
@@ -67,14 +67,21 @@ class Featurizer:
     def complete_feats(self):
         return self.run_directory.complete_feats.intersection(self.run_directory.complete_runs)
 
-    def feats_to_do(self):
-        return self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
+    def feats_to_do(self, filters):
+        to_do =  self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
+
+        n_before = len(to_do)
+        to_do = apply_filters(to_do)
+        n_after = len(to_do)
+        print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
+        return to_do
 
     def do_remaining_feats(
         self, bs_or_bs_map: Union[int, dict], post_run_callback=None, post_run_callback_groundtruth=None,
         minimize_padding=True, minimize_padding_longest_first=True,
+        filters=None,
     ):
-        for params in self.feats_to_do():
+        for params in self.feats_to_do(filters):
             bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
             self.featurize_run(
                 params,

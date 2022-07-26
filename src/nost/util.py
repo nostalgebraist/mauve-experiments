@@ -3,6 +3,14 @@ from typing import Union
 from src.utils import load_and_tokenize_data
 
 
+def apply_filters(params_list):
+    for k in filters:
+        rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
+        rel, val = filters[k]
+        rel = rel_map[rel]
+        return {params for params in params_list if getattr(getattr(params, k), rel)(val)}
+
+
 def load_ground_truth(enc, data_dir, prompt_source_file, min_len):
     segs = prompt_source_file.split('.')
 
