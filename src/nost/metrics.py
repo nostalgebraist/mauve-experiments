@@ -28,7 +28,7 @@ class MetricsComputer:
         to_do = self.run_directory.complete_feats.difference(self.complete_metrics(seed))
         if filters is not None:
             n_before = len(to_do)
-            to_do = apply_filters(to_do)
+            to_do = apply_filters(to_do, filters)
             # for k in filters:
             #     rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
             #     rel, val = filters[k]

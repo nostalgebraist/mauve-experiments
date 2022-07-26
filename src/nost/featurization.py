@@ -67,11 +67,11 @@ class Featurizer:
     def complete_feats(self):
         return self.run_directory.complete_feats.intersection(self.run_directory.complete_runs)
 
-    def feats_to_do(self, filters):
+    def feats_to_do(self, filters=None):
         to_do =  self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
 
         n_before = len(to_do)
-        to_do = apply_filters(to_do)
+        to_do = apply_filters(to_do, filters)
         n_after = len(to_do)
         print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
         return to_do
