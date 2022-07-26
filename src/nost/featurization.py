@@ -73,7 +73,7 @@ class Featurizer:
         n_before = len(to_do)
         to_do = apply_filters(to_do, filters)
         n_after = len(to_do)
-        print(f"{n_after} to do for seed {seed} after filters (vs {n_before} before)")
+        print(f"{n_after} to do after filters (vs {n_before} before)")
         return to_do
 
     def do_remaining_feats(
