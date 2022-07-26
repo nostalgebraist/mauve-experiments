@@ -9,7 +9,8 @@ def apply_filters(params_list, filters):
         rel_map = {'==': '__eq__', '!=': '__ne__', '<': '__lt__', '>': '__gt__'}
         rel, val = filters[k]
         rel = rel_map[rel]
-    return {params for params in params_list if getattr(getattr(params, k), rel)(val)}
+        params_list = {params for params in params_list if getattr(getattr(params, k), rel)(val)}
+    return params_list
 
 
 def load_ground_truth(enc, data_dir, prompt_source_file, min_len):
