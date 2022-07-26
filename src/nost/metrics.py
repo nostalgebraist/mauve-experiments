@@ -54,9 +54,12 @@ class MetricsComputer:
         chunksize=1,
         gpus=0,
         filters=None,
+        todo_override=None,
         **kwargs
     ):
-        to_do = self.metrics_to_do(seed, filters)
+        to_do = todo_override
+        if to_do is None:
+            to_do = self.metrics_to_do(seed, filters)
         if n_concurrent > 1:
             to_do = list(to_do)
             handler = partial(
