@@ -13,6 +13,7 @@ from src.nost.util import load_ground_truth, handle_bs_or_bs_map
 def featurize_tokens(
     tokens, max_examples, batch_size, featurize_model_name='gpt2-large', device_id=0, name='',
     minimize_padding=True,
+    minimize_padding_longest_first=True,
 ):
     tokens_ = tokens[:max_examples]
     tokens = tokens_
@@ -20,7 +21,7 @@ def featurize_tokens(
     if minimize_padding:
         token_length = [t.view(-1).shape[0] for t in tokens]
 
-        sorter = sorted(list(range(len(token_length))), key=lambda i: token_length[i])
+        sorter = sorted(list(range(len(token_length))), key=lambda i: token_length[i], reverse=minimize_padding_longest_first)
 
         unsorter = [None] * len(sorter)
         for i, ix in enumerate(sorter):
@@ -70,7 +71,8 @@ class Featurizer:
         return self.run_directory.complete_runs.difference(self.run_directory.complete_feats)
 
     def do_remaining_feats(
-        self, bs_or_bs_map: Union[int, dict], post_run_callback=None, post_run_callback_groundtruth=None, minimize_padding=True
+        self, bs_or_bs_map: Union[int, dict], post_run_callback=None, post_run_callback_groundtruth=None,
+        minimize_padding=True, minimize_padding_longest_first=True,
     ):
         for params in self.feats_to_do():
             bs = handle_bs_or_bs_map(bs_or_bs_map, params.max_len)
@@ -79,14 +81,21 @@ class Featurizer:
                 bs,
                 post_run_callback=post_run_callback,
                 post_run_callback_groundtruth=post_run_callback_groundtruth,
-                minimize_padding=minimize_padding
+                minimize_padding=minimize_padding,
+                minimize_padding_longest_first=minimize_padding_longest_first,
             )
 
     def featurize_run(
         self, params: GenerationRunParams, batch_size: int, post_run_callback=None, post_run_callback_groundtruth=None,
-        minimize_padding=True
+        minimize_padding=True, minimize_padding_longest_first=True,
     ):
-        self.featurize_ground_truth(params, batch_size, post_run_callback_groundtruth, minimize_padding)  # skips internally if already done
+        self.featurize_ground_truth(
+            params,
+            batch_size,
+            post_run_callback_groundtruth,
+            minimize_padding,
+            minimize_padding_longest_first
+        )  # skips internally if already done
 
         print(f"computing features for {pformat(params.to_dict())}")
 
@@ -100,6 +109,7 @@ class Featurizer:
             device_id=self.device_id,
             name=params.uid,
             minimize_padding=minimize_padding,
+            minimize_padding_longest_first=minimize_padding_longest_first,
         )
 
         self.run_directory.save_feats(params, feats)
@@ -108,7 +118,10 @@ class Featurizer:
         if post_run_callback is not None:
             post_run_callback(self.run_directory, params)
 
-    def featurize_ground_truth(self, params: GenerationRunParams, batch_size: int, post_run_callback=None, minimize_padding=True):
+    def featurize_ground_truth(
+        self, params: GenerationRunParams, batch_size: int, post_run_callback=None,
+        minimize_padding=True, minimize_padding_longest_first=True,
+    ):
         if os.path.exists(self.run_directory.ground_truth_feats_path(params)):
             return
 
@@ -132,6 +145,7 @@ class Featurizer:
             device_id=self.device_id,
             name=params.prompt_source_file,
             minimize_padding=minimize_padding,
+            minimize_padding_longest_first=minimize_padding_longest_first,
         )
 
         self.run_directory.save_groundtruth_feats(params, feats)
