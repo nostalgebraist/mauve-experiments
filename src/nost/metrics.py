@@ -3,7 +3,6 @@ from typing import Union
 from pprint import pformat
 from functools import partial
 
-import torch as th
 from tqdm.auto import tqdm, trange
 from tqdm.contrib.concurrent import process_map
 
