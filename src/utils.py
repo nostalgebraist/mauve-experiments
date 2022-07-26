@@ -240,13 +240,14 @@ def load_json_dataset(data_dir, dataset_name, split=None, max_num_data=np.inf):
         texts.append(json.loads(line)['text'])
     return texts
 
-def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=None, ds_name=None, split='valid'):
+def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=None, ds_name=None, split='valid', eos_prepend=False):
     if ds_name is None:
         ds_name = get_dataset_name_from_datapath(data_dir)
+    eps = "eos_" if eos_prepend else ""
     if split is None:
-        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_tokenized.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_{eps}tokenized.pkl')
     else:
-        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_tokenized.{split}.pkl')
+        path = os.path.join(data_dir, f'{ds_name}_L{max_len}_mD{max_num_data}_{eps}tokenized.{split}.pkl')
 
     if os.path.exists(path):
         with open(path, 'rb') as f:
@@ -261,6 +262,8 @@ def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=N
     print(f'dataset load time: {round(t2-t1, 2)}')
     t1 = time.time()
     if min_len is None:
+        if eos_prepend:
+            raise ValueError
         tokenized_texts = [tokenizer.encode(sen, return_tensors='pt', truncation=True, max_length=max_len)
                           for sen in texts]
     else:
@@ -269,6 +272,8 @@ def load_and_tokenize_data(tokenizer, data_dir, max_len, max_num_data, min_len=N
                            for sen in texts]
         # append with newline if necessary
         for i in range(len(tokenized_texts)):
+            if eos_prepend:
+                tokenized_texts[i] = [tokenizer.eos_token_id] + tokenized_texts[i]
             if len(tokenized_texts[i]) < min_len:
                 num_tokens_to_append = min_len - len(tokenized_texts[i])
                 tokenized_texts[i].extend([NEWLINE] * num_tokens_to_append)
