@@ -51,6 +51,7 @@ class MetricsComputer:
         verbose=True,
         trialrun=False,
         n_concurrent=1,
+        chunksize=1,
         gpus=0,
         filters=None,
         **kwargs
@@ -62,7 +63,7 @@ class MetricsComputer:
                 self.compute_metrics, seed=seed, post_run_callback=post_run_callback, verbose=verbose,
                 trialrun=trialrun, **kwargs
             )
-            process_map(handler, to_do, max_workers=n_concurrent)
+            process_map(handler, to_do, max_workers=n_concurrent, chunksize=chunksize)
         else:
             for params in to_do:
                 # self.summarize_metrics(seed)
