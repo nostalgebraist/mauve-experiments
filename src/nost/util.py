@@ -13,7 +13,7 @@ def apply_filters(params_list, filters):
     return params_list
 
 
-def load_ground_truth(enc, data_dir, prompt_source_file, min_len):
+def load_ground_truth(enc, data_dir, prompt_source_file, min_len, max_num_data=10000):
     segs = prompt_source_file.split('.')
 
     ds_name = segs[0]
@@ -25,7 +25,7 @@ def load_ground_truth(enc, data_dir, prompt_source_file, min_len):
         ds_name = ds_name[:-len('_eos')]
 
     return load_and_tokenize_data(
-        enc, data_dir, 1024, 10000, min_len=min_len, ds_name=ds_name, split=split,
+        enc, data_dir, 1024, max_num_data=max_num_data, min_len=min_len, ds_name=ds_name, split=split,
         eos_prepend=eos_prepend
     )
 
